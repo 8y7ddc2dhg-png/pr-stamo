@@ -13,8 +13,8 @@ Publicás algo que no usás todo el tiempo; alguien más lo renta por unos días
 
 | Fase | Qué incluye | Estado |
 |---|---|---|
-| 0 | Repositorio, despliegue, cuentas de servicios, base de datos | 🟡 Casi lista |
-| 1 | Ingreso por correo, publicar ítems, catálogo público | ⬜ Pendiente |
+| 0 | Repositorio, despliegue, cuentas de servicios, base de datos | 🟡 Falta Vercel |
+| 1 | Ingreso por correo, publicar ítems, catálogo público | 🟡 En progreso |
 | 2 | Disponibilidad, solicitud de reserva, aceptar/rechazar | ⬜ Pendiente |
 | 3 | Pagos con Recurrente | ⬜ Pendiente |
 | 4 | Entrega, devolución, panel de administración | ⬜ Pendiente |
@@ -54,6 +54,7 @@ Abrir http://localhost:3000
 npm run build    # compila para producción; falla si hay errores de tipos
 npm run start    # corre la versión compilada
 npm run lint     # revisa el estilo del código
+npm run verificar # comprueba la conexión a Supabase y las reglas de seguridad
 npm test         # corre las pruebas automáticas (desde la Fase 2)
 ```
 

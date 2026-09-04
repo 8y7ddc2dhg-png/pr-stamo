@@ -11,9 +11,12 @@ dist/
 
 # Variables de entorno — NUNCA subir estas al repositorio.
 # Contienen las llaves secretas de Supabase, Resend y Recurrente.
+# El patrón es amplio a propósito: cubre también respaldos y variantes
+# tipo .env.local.respaldo o .env.produccion.viejo, que de otro modo se
+# escaparían y terminarían publicados en GitHub.
 .env
-.env.local
-.env*.local
+.env.*
+!.env.example
 
 # Vercel
 .vercel
