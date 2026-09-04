@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { formatearQuetzales } from "@/lib/dinero";
+import { formatearRango } from "@/lib/fechas";
 
 export const metadata = { title: "Mis publicaciones — Prestamo" };
 
@@ -21,6 +22,26 @@ export default async function MisPublicaciones() {
 
   const publicaciones = data ?? [];
 
+  // Las reservas que le hicieron a sus ítems. Sin esta lista, quien publica no
+  // tendría por dónde entrar a la conversación con quien le está rentando.
+  const idsPropios = publicaciones.map((p) => p.id);
+  const { data: recibidas } = idsPropios.length
+    ? await supabase
+        .from("reservations")
+        .select("id, inicio_en, fin_en, dias, precio_total_centavos, estado, listing_id")
+        .in("listing_id", idsPropios)
+        .order("creado_en", { ascending: false })
+    : { data: [] };
+
+  const reservasRecibidas = recibidas ?? [];
+  const tituloPorId = new Map(publicaciones.map((p) => [p.id, p.titulo]));
+
+  const ESTADOS: Record<string, string> = {
+    solicitada: "Esperando tu respuesta", aceptada: "Falta que pague",
+    rechazada: "Rechazada", pagada: "Pagada", entregada: "Entregada",
+    devuelta: "Devuelta", con_problema: "Con un problema", cancelada: "Cancelada",
+  };
+
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
       <div className="flex items-center justify-between gap-4">
@@ -29,6 +50,31 @@ export default async function MisPublicaciones() {
           Publicar
         </Link>
       </div>
+
+      {reservasRecibidas.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+            Reservas que te hicieron
+          </h2>
+          <ul className="mt-3 divide-y divide-slate-200 rounded-xl border border-slate-200">
+            {reservasRecibidas.map((r) => (
+              <li key={r.id}>
+                <Link href={`/reserva/${r.id}`} className="flex items-center gap-3 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{tituloPorId.get(r.listing_id) ?? "Ítem"}</p>
+                    <p className="text-sm text-slate-500">
+                      {formatearRango(r.inicio_en, r.fin_en)} · {formatearQuetzales(r.precio_total_centavos)}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700">
+                    {ESTADOS[r.estado] ?? r.estado}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {publicaciones.length === 0 ? (
         <div className="mt-10 rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">

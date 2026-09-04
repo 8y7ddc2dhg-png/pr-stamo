@@ -97,11 +97,15 @@ export default async function MisReservas({
                   </div>
                 </div>
 
-                {r.estado === "aceptada" && (
-                  <div className="mt-3 flex justify-end">
-                    <BotonPagar reservaId={r.id} />
-                  </div>
-                )}
+                <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
+                  <Link
+                    href={`/reserva/${r.id}`}
+                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:border-slate-900"
+                  >
+                    Ver y conversar
+                  </Link>
+                  {r.estado === "aceptada" && <BotonPagar reservaId={r.id} />}
+                </div>
               </li>
             );
           })}

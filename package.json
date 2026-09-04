@@ -14,7 +14,8 @@
     "probar:permisos": "node --env-file=.env.local scripts/probar-permisos.mjs",
     "test": "node --test \"lib/**/*.test.ts\"",
     "probar:reservas": "node --env-file=.env.local scripts/probar-reservas.mjs",
-    "sesion:prueba": "node --env-file=.env.local scripts/sesion-de-prueba.mjs"
+    "sesion:prueba": "node --env-file=.env.local scripts/sesion-de-prueba.mjs",
+    "probar:chat": "node --env-file=.env.local scripts/probar-chat.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.6",
