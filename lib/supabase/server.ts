@@ -13,14 +13,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { leerVariable } from "@/lib/entorno";
+import { exigirVariable } from "@/lib/entorno";
 
 export async function crearClienteServidor() {
   const almacenCookies = await cookies();
 
   return createServerClient(
-    leerVariable("NEXT_PUBLIC_SUPABASE_URL"),
-    leerVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    exigirVariable("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
+    exigirVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
     {
       cookies: {
         getAll() {
@@ -50,9 +50,13 @@ export async function crearClienteServidor() {
  * este archivo por accidente desde un componente de cliente.
  */
 export function crearClienteAdmin() {
-  const llave = leerVariable("SUPABASE_SERVICE_ROLE_KEY");
+  const llave = exigirVariable("SUPABASE_SERVICE_ROLE_KEY", process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-  return createClient(leerVariable("NEXT_PUBLIC_SUPABASE_URL"), llave, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  return createClient(
+    exigirVariable("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
+    llave,
+    {
+      auth: { persistSession: false, autoRefreshToken: false },
+    }
+  );
 }

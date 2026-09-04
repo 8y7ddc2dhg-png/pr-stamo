@@ -40,30 +40,37 @@ export default function FormularioPublicar({
     setFaltaPerfil(false);
     setEnviando(true);
 
-    const respuesta = await fetch("/api/listings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        titulo,
-        categoria,
-        descripcion,
-        precio_por_dia: precio,
-        ciudad,
-        cantidad_disponible: Number(cantidad),
-        fotos: fotos.map((f) => ({ url: f.url })),
-      }),
-    });
+    try {
+      const respuesta = await fetch("/api/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo,
+          categoria,
+          descripcion,
+          precio_por_dia: precio,
+          ciudad,
+          cantidad_disponible: Number(cantidad),
+          fotos: fotos.map((f) => ({ url: f.url })),
+        }),
+      });
 
-    const cuerpo = await respuesta.json().catch(() => ({}));
+      const cuerpo = await respuesta.json().catch(() => ({}));
 
-    if (!respuesta.ok) {
-      setError(cuerpo.error ?? "No se pudo publicar. Intentá de nuevo.");
-      setFaltaPerfil(Boolean(cuerpo.faltaPerfil));
+      if (!respuesta.ok) {
+        setError(cuerpo.error ?? "No se pudo publicar. Intentá de nuevo.");
+        setFaltaPerfil(Boolean(cuerpo.faltaPerfil));
+        setEnviando(false);
+        return;
+      }
+
+      router.push(`/item/${cuerpo.id}`);
+    } catch {
+      // Sin esto, una falla de red dejaba el botón trabado en "Publicando…"
+      // con todo el formulario ya lleno y sin forma de reintentar.
+      setError("No pudimos conectarnos. Revisá tu internet e intentá de nuevo.");
       setEnviando(false);
-      return;
     }
-
-    router.push(`/item/${cuerpo.id}`);
   }
 
   const claseCampo =

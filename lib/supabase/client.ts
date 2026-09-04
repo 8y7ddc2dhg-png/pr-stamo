@@ -7,13 +7,17 @@
  * reglas de la base de datos deciden cuáles se entregan.
  *
  * Por eso RLS no es opcional en este proyecto.
+ *
+ * OJO con las dos líneas de abajo: `process.env.NEXT_PUBLIC_...` tiene que
+ * quedar escrito TAL CUAL, completo y a la vista. Es lo que el compilador
+ * busca para reemplazarlo por el valor. Ver la explicación en lib/entorno.ts.
  */
 import { createBrowserClient } from "@supabase/ssr";
-import { leerVariable } from "@/lib/entorno";
+import { exigirVariable } from "@/lib/entorno";
 
 export function crearClienteNavegador() {
   return createBrowserClient(
-    leerVariable("NEXT_PUBLIC_SUPABASE_URL"),
-    leerVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY")
+    exigirVariable("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
+    exigirVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   );
 }

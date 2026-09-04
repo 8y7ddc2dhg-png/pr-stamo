@@ -34,24 +34,40 @@ function FormularioIngreso() {
     setError(null);
     setEstado("enviando");
 
-    const supabase = crearClienteNavegador();
-    const destino = new URL("/auth/callback", window.location.origin);
-    if (volverA) destino.searchParams.set("volver_a", volverA);
+    // TODO envuelto en try/catch a propósito: sin esto, cualquier error
+    // —falta de configuración, sin internet, Supabase caído— dejaba el botón
+    // trabado en "Mandando…" para siempre y sin ningún mensaje. Un botón que
+    // no responde es la peor forma posible de reportar una falla.
+    try {
+      const supabase = crearClienteNavegador();
+      const destino = new URL("/auth/callback", window.location.origin);
+      if (volverA) destino.searchParams.set("volver_a", volverA);
 
-    const { error: fallo } = await supabase.auth.signInWithOtp({
-      email: correo.trim(),
-      options: { emailRedirectTo: destino.toString() },
-    });
+      const { error: fallo } = await supabase.auth.signInWithOtp({
+        email: correo.trim(),
+        options: { emailRedirectTo: destino.toString() },
+      });
 
-    if (fallo) {
-      setEstado("listo");
+      if (fallo) {
+        setError(
+          "No pudimos mandar el correo. Revisá que la dirección esté bien escrita e intentá de nuevo."
+        );
+        return;
+      }
+
+      setEstado("enviado");
+    } catch (fallo) {
+      // Si falta una variable de entorno, el mensaje de lib/entorno.ts dice
+      // exactamente cuál y dónde ponerla. Vale más mostrarlo que esconderlo.
       setError(
-        "No pudimos mandar el correo. Revisá que la dirección esté bien escrita e intentá de nuevo."
+        fallo instanceof Error && fallo.message.includes("Falta la variable")
+          ? fallo.message
+          : "No pudimos conectarnos. Revisá tu internet e intentá de nuevo."
       );
-      return;
+    } finally {
+      // Pase lo que pase, el botón vuelve a estar disponible.
+      setEstado((actual) => (actual === "enviado" ? actual : "listo"));
     }
-
-    setEstado("enviado");
   }
 
   if (estado === "enviado") {
@@ -97,7 +113,7 @@ function FormularioIngreso() {
       />
 
       {error && (
-        <p className="mt-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="mt-3 whitespace-pre-line rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
         </p>
       )}

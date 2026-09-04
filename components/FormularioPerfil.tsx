@@ -31,21 +31,27 @@ export default function FormularioPerfil({ perfil }: { perfil: Usuario }) {
     if (Object.keys(nuevos).length > 0) return;
 
     setEstado("guardando");
-    const respuesta = await fetch("/api/perfil", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, telefono_whatsapp: telefono, ciudad }),
-    });
+    try {
+      const respuesta = await fetch("/api/perfil", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, telefono_whatsapp: telefono, ciudad }),
+      });
 
-    if (!respuesta.ok) {
-      const cuerpo = await respuesta.json().catch(() => ({}));
-      setErrores({ general: cuerpo.error ?? "No se pudo guardar. Intentá de nuevo." });
+      if (!respuesta.ok) {
+        const cuerpo = await respuesta.json().catch(() => ({}));
+        setErrores({ general: cuerpo.error ?? "No se pudo guardar. Intentá de nuevo." });
+        setEstado("listo");
+        return;
+      }
+
+      setEstado("guardado");
+      router.refresh();
+    } catch {
+      // Sin esto, quedarse sin internet dejaba el botón trabado en "Guardando…".
+      setErrores({ general: "No pudimos conectarnos. Revisá tu internet e intentá de nuevo." });
       setEstado("listo");
-      return;
     }
-
-    setEstado("guardado");
-    router.refresh();
   }
 
   const claseCampo =

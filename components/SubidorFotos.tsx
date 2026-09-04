@@ -42,8 +42,21 @@ export default function SubidorFotos({
 
     const aSubir = Array.from(lista).slice(0, disponibles);
     setSubiendo(true);
-    const supabase = crearClienteNavegador();
     const nuevas: FotoSubida[] = [];
+
+    let supabase;
+    try {
+      supabase = crearClienteNavegador();
+    } catch (fallo) {
+      // Si falta configuración, avisamos en vez de dejar "Subiendo…" para siempre.
+      setError(
+        fallo instanceof Error && fallo.message.includes("Falta la variable")
+          ? fallo.message
+          : "No pudimos conectarnos para subir las fotos."
+      );
+      setSubiendo(false);
+      return;
+    }
 
     for (const archivo of aSubir) {
       const problema = validarArchivoImagen(archivo);
@@ -135,7 +148,7 @@ export default function SubidorFotos({
         La primera foto es la portada, la que se ve en el buscador. Hasta {maximo} fotos.
       </p>
 
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="mt-2 whitespace-pre-line text-sm text-red-700">{error}</p>}
     </div>
   );
 }
