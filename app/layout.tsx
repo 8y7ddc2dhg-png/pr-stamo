@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import Encabezado from "@/components/Encabezado";
 
 export const metadata: Metadata = {
   title: "Prestamo — Rentá lo que necesitás, por los días que lo necesitás",
@@ -25,6 +26,7 @@ export default function RootLayout({
   return (
     <html lang="es-GT">
       <body className="min-h-screen bg-white text-slate-900 antialiased">
+        <Encabezado />
         {children}
       </body>
     </html>
