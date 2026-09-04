@@ -1,5 +1,26 @@
 # PLAN.md — Prestamo (nombre de trabajo)
 
+> ## ⚠️ ALCANCE RECORTADO — 4 de septiembre de 2026
+>
+> El proyecto pasó a ser una **entrega académica con fecha límite el lunes 7 de
+> septiembre de 2026**. El alcance se recortó a cuatro cosas:
+>
+> 1. Ingreso con enlace mágico
+> 2. Publicar un ítem con foto
+> 3. Buscador y catálogo público
+> 4. Ficha del ítem
+>
+> Eso es **exactamente la Fase 1** de este plan. Las **Fases 2, 3, 4 y 5 quedan
+> aplazadas**: nada de pagos, reservas, calificaciones ni panel de admin.
+>
+> El plan completo se conserva tal cual más abajo porque sigue siendo válido
+> para después de la entrega. Lo único que cambia es **cuándo** se construye
+> cada fase, no **qué** ni **cómo**.
+>
+> **Criterio de esta entrega:** que funcione y esté desplegado, por encima de
+> que esté pulido. Las decisiones que se tomen apurando quedan anotadas en la
+> sección "Deuda asumida por la fecha" al final de la Fase 1.
+
 Marketplace de renta de objetos entre particulares y negocios, en Guatemala.
 
 **Estado:** plan escrito, esperando aprobación. No se ha escrito nada de código todavía.

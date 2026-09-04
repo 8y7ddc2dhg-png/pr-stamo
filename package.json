@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint .",
     "verificar": "node --env-file=.env.local scripts/verificar-conexion.mjs",
-    "probar:registro": "node --env-file=.env.local scripts/probar-registro.mjs"
+    "probar:registro": "node --env-file=.env.local scripts/probar-registro.mjs",
+    "sembrar": "node --env-file=.env.local scripts/sembrar-ejemplos.mjs",
+    "sembrar:limpiar": "node --env-file=.env.local scripts/sembrar-ejemplos.mjs --limpiar",
+    "probar:permisos": "node --env-file=.env.local scripts/probar-permisos.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.6",

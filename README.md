@@ -11,14 +11,19 @@ Publicás algo que no usás todo el tiempo; alguien más lo renta por unos días
 
 ## Estado de las fases
 
+> **Alcance recortado (4 de septiembre de 2026).** Esto pasó a ser una entrega
+> académica para el lunes 7 de septiembre. Se construye solo la Fase 1: ingreso,
+> publicar con foto, buscador y ficha. Las Fases 2 a 5 quedan aplazadas.
+> Ver el aviso al inicio de [`PLAN.md`](./PLAN.md).
+
 | Fase | Qué incluye | Estado |
 |---|---|---|
 | 0 | Repositorio, despliegue, cuentas de servicios, base de datos | 🟡 Falta Vercel |
-| 1 | Ingreso por correo, publicar ítems, catálogo público | 🟡 En progreso |
-| 2 | Disponibilidad, solicitud de reserva, aceptar/rechazar | ⬜ Pendiente |
-| 3 | Pagos con Recurrente | ⬜ Pendiente |
-| 4 | Entrega, devolución, panel de administración | ⬜ Pendiente |
-| 5 | Perfiles, calificaciones, catálogo semilla, lanzamiento | ⬜ Pendiente |
+| 1 | Ingreso por correo, publicar ítems, catálogo público | 🟡 Falta desplegar |
+| 2 | Disponibilidad, solicitud de reserva, aceptar/rechazar | ⏸️ Aplazada |
+| 3 | Pagos con Recurrente | ⏸️ Aplazada |
+| 4 | Entrega, devolución, panel de administración | ⏸️ Aplazada |
+| 5 | Perfiles, calificaciones, catálogo semilla, lanzamiento | ⏸️ Aplazada |
 
 ---
 
@@ -54,8 +59,15 @@ Abrir http://localhost:3000
 npm run build    # compila para producción; falla si hay errores de tipos
 npm run start    # corre la versión compilada
 npm run lint     # revisa el estilo del código
-npm run verificar # comprueba la conexión a Supabase y las reglas de seguridad
-npm test         # corre las pruebas automáticas (desde la Fase 2)
+
+# Comprobaciones (todas contra la base de datos real)
+npm run verificar         # conexión a Supabase y reglas básicas de seguridad
+npm run probar:registro   # que registrarse cree el perfil solo
+npm run probar:permisos   # que dos usuarios no puedan tocar lo del otro
+
+# Datos de ejemplo para probar o demostrar
+npm run sembrar           # publica 8 ítems de ejemplo con fotos generadas
+npm run sembrar:limpiar   # los borra todos
 ```
 
 ---

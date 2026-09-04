@@ -1,12 +1,28 @@
 import type { NextConfig } from "next";
 
+/**
+ * Next.js solo optimiza imágenes de dominios autorizados explícitamente.
+ * Sin esto, las fotos de los ítems no cargarían.
+ *
+ * El dominio se deduce de la variable de entorno en vez de escribirlo a mano,
+ * para que funcione igual en tu computadora y en Vercel sin tener que
+ * acordarse de cambiarlo en dos lugares.
+ */
+const hostDeSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : null;
+
 const nextConfig: NextConfig = {
-  // Las fotos de los ítems viven en Supabase Storage. Next.js solo optimiza
-  // imágenes de dominios que le autoricemos explícitamente; sin esto, las
-  // fotos no cargarían. El dominio exacto se agrega en la Fase 1, cuando ya
-  // exista el proyecto de Supabase.
   images: {
-    remotePatterns: [],
+    remotePatterns: hostDeSupabase
+      ? [
+          {
+            protocol: "https",
+            hostname: hostDeSupabase,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ]
+      : [],
   },
 };
 
