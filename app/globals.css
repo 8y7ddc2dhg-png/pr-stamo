@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/*
+  Tipografía: usamos la fuente que ya trae el sistema del usuario en vez de
+  descargar una de Google Fonts. Una fuente externa son ~100 KB extra que hay
+  que bajar antes de que el texto se vea. En una conexión móvil lenta —que es
+  como va a entrar la mayoría de nuestros usuarios— eso se nota.
+*/
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+}

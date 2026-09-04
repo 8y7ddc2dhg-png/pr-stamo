@@ -331,13 +331,13 @@ README.md  CLAUDE.md
 - **CLAUDE.md** — un archivo con las convenciones del proyecto que yo leo automáticamente en cada sesión. Ahí queda: dinero en centavos, fechas inclusivas, español en la interfaz, nombres de tablas en inglés y campos en español, etc.
 
 **Criterio de terminado (verificable):**
-- [ ] `npm run dev` levanta el sitio en `localhost:3000` sin errores
-- [ ] `npm run build` termina sin errores ni advertencias de tipos
+- [x] `npm run dev` levanta el sitio en `localhost:3000` sin errores
+- [x] `npm run build` termina sin errores ni advertencias de tipos
 - [ ] La URL de Vercel abre y muestra la página
 - [ ] Guardar un cambio en el código actualiza la URL pública en menos de 2 minutos
 - [ ] Existen proyecto de Supabase, cuenta de Resend con dominio verificado, y cuenta de Recurrente en modo prueba
 - [ ] Las variables de entorno están en Vercel y `.env.local` está en `.gitignore`
-- [ ] `.env.example` lista todas las variables necesarias, sin valores reales
+- [x] `.env.example` lista todas las variables necesarias, sin valores reales
 
 **Cómo probarla a mano:** abrir la URL de Vercel desde el teléfono. Cambiar el texto "Prestamo" por "Prestamo 🔧", guardar, esperar 2 minutos, recargar en el teléfono, ver el cambio.
 
@@ -346,16 +346,17 @@ README.md  CLAUDE.md
 **Riesgo principal:** la verificación del dominio para Resend depende de tocar la configuración DNS del dominio (los registros que dicen a internet dónde vive su sitio) y puede tardar hasta 48 horas. **Mitigación:** hacerlo el primer día de todo, en paralelo con lo demás. Si no tienen dominio propio todavía, Resend permite enviar desde un subdominio de prueba mientras tanto.
 
 **Tareas:**
-- [ ] Crear repositorio en GitHub
-- [ ] `npx create-next-app` con TypeScript y Tailwind
+- [x] Repositorio de git local iniciado en la rama `main`
+- [ ] Crear el repositorio en GitHub y subir el código
+- [x] Proyecto de Next.js 16 + TypeScript + Tailwind 4 (escrito a mano, con versiones fijas)
 - [ ] Conectar el repositorio a Vercel y hacer el primer despliegue
 - [ ] Crear proyecto de Supabase (región más cercana a Guatemala)
-- [ ] Escribir `0001_inicial.sql` con las 6 tablas y RLS activado, todo cerrado
+- [x] Escribir `0001_inicial.sql` con las 6 tablas y RLS activado, todo cerrado
 - [ ] Crear cuenta de Resend y verificar dominio
 - [ ] Configurar Resend como SMTP en Supabase Auth
 - [ ] Crear cuenta de Recurrente y obtener llaves de prueba
 - [ ] Cargar todas las variables de entorno en Vercel
-- [ ] Escribir `README.md` (cómo levantar el proyecto) y `CLAUDE.md` (convenciones)
+- [x] Escribir `README.md` (cómo levantar el proyecto) y `CLAUDE.md` (convenciones)
 
 ---
 

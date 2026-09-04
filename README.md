@@ -13,7 +13,7 @@ Publicás algo que no usás todo el tiempo; alguien más lo renta por unos días
 
 | Fase | Qué incluye | Estado |
 |---|---|---|
-| 0 | Repositorio, despliegue, cuentas de servicios, base de datos | 🟡 En progreso |
+| 0 | Repositorio, despliegue, cuentas de servicios, base de datos | 🟡 Casi lista |
 | 1 | Ingreso por correo, publicar ítems, catálogo público | ⬜ Pendiente |
 | 2 | Disponibilidad, solicitud de reserva, aceptar/rechazar | ⬜ Pendiente |
 | 3 | Pagos con Recurrente | ⬜ Pendiente |
@@ -103,9 +103,29 @@ contenido del archivo → **Run**.
 Las migraciones se corren **en orden** y **una sola vez cada una**. Una
 migración ya aplicada no se edita; si hay que corregir algo, se escribe una nueva.
 
-| Archivo | Qué hace |
-|---|---|
-| `0001_inicial.sql` | Las 6 tablas, los índices, RLS activado y cerrado |
+| Archivo | Qué hace | ¿Aplicada? |
+|---|---|---|
+| `0001_inicial.sql` | Las 6 tablas, los índices, RLS activado y cerrado | ⬜ Pendiente |
+
+---
+
+## Por qué las versiones están fijadas con números exactos
+
+En `package.json` las versiones no llevan `^` ni `~`: dicen `"next": "16.3.4"`,
+no `"next": "^16.3.4"`. El `^` significa "instalá cualquier versión más nueva
+compatible", y eso hace que el proyecto se comporte distinto en dos máquinas o
+que se rompa solo un martes cualquiera. Con números exactos, lo que funciona
+hoy funciona igual en seis meses.
+
+Dos versiones están deliberadamente **por debajo** de la más nueva:
+
+| Paquete | Fijado en | Por qué no la última |
+|---|---|---|
+| `typescript` | 6.0.3 | TypeScript 7 ya salió, pero las reglas de ESLint todavía no lo soportan y `npm run lint` truena |
+| `eslint` | 9.39.5 | ESLint 10 quitó una función que `eslint-plugin-react` todavía usa, y ese plugin viene dentro de la configuración de Next.js |
+
+Se suben cuando las herramientas se pongan al día. No antes: una revisión de
+código que no corre no sirve de nada.
 
 ---
 
