@@ -13,13 +13,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { leerVariable } from "@/lib/entorno";
 
 export async function crearClienteServidor() {
   const almacenCookies = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    leerVariable("NEXT_PUBLIC_SUPABASE_URL"),
+    leerVariable("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
     {
       cookies: {
         getAll() {
@@ -49,14 +50,9 @@ export async function crearClienteServidor() {
  * este archivo por accidente desde un componente de cliente.
  */
 export function crearClienteAdmin() {
-  const llave = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!llave) {
-    throw new Error(
-      "Falta SUPABASE_SERVICE_ROLE_KEY. Este cliente solo puede usarse en el servidor."
-    );
-  }
+  const llave = leerVariable("SUPABASE_SERVICE_ROLE_KEY");
 
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, llave, {
+  return createClient(leerVariable("NEXT_PUBLIC_SUPABASE_URL"), llave, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
