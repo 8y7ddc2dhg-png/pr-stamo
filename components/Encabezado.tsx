@@ -30,6 +30,9 @@ export default async function Encabezado() {
               <Link href="/mis-publicaciones" className="hover:underline">
                 Mis publicaciones
               </Link>
+              <Link href="/mis-reservas" className="hover:underline">
+                Mis reservas
+              </Link>
               <Link href="/mi-perfil" className="hover:underline">
                 Mi perfil
               </Link>

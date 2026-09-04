@@ -40,3 +40,4 @@ yarn-error.log*
 
 # Respaldos a CSV (pueden traer datos de usuarios reales)
 respaldos/
+fotos-demo/

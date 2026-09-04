@@ -17,6 +17,8 @@ export const CATEGORIAS = [
   { valor: "equipo_audio_video",  etiqueta: "Equipo de audio y video" },
   { valor: "deportes_aire_libre", etiqueta: "Deportes y aire libre" },
   { valor: "hogar_jardin",        etiqueta: "Hogar y jardín" },
+  { valor: "ropa",                etiqueta: "Ropa y trajes" },
+  { valor: "electronicos",        etiqueta: "Electrónicos" },
   { valor: "otros",               etiqueta: "Otros" },
 ] as const;
 

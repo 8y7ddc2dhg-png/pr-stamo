@@ -19,7 +19,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Páginas que exigen sesión iniciada.
-const RUTAS_PRIVADAS = ["/publicar", "/mis-publicaciones", "/mi-perfil", "/mis-rentas"];
+const RUTAS_PRIVADAS = ["/publicar", "/mis-publicaciones", "/mi-perfil", "/mis-reservas"];
 
 export async function middleware(request: NextRequest) {
   let respuesta = NextResponse.next({ request });

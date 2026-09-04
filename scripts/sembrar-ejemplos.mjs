@@ -15,6 +15,10 @@
  */
 import { createClient } from "@supabase/supabase-js";
 import zlib from "node:zlib";
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -23,6 +27,41 @@ const admin = createClient(
 );
 
 const DOMINIO = "ejemplo-prestamo.test";
+
+// Si existe una foto real con el nombre del ítem, se usa esa. Si no, se genera
+// un relleno de color. Así el sembrador funciona con cero fotos, con ocho, o
+// con las veinte, y el catálogo mejora a medida que se van agregando.
+const CARPETA_FOTOS = path.join(process.cwd(), "fotos-demo");
+const EXTENSIONES = [".jpg", ".jpeg", ".png", ".webp"];
+
+function buscarFotoReal(slug) {
+  for (const ext of EXTENSIONES) {
+    const ruta = path.join(CARPETA_FOTOS, slug + ext);
+    if (fs.existsSync(ruta)) return ruta;
+  }
+  return null;
+}
+
+/**
+ * Achica la foto antes de subirla, igual que hace el navegador cuando alguien
+ * publica desde la app. Una foto de Unsplash puede pesar 6 MB, y el bucket
+ * rechaza cualquier cosa arriba de 5 MB.
+ *
+ * `sips` viene incluido en macOS, así que no hay que instalar nada.
+ */
+function achicarConSips(rutaOriginal) {
+  const destino = path.join(os.tmpdir(), `prestamo-${crypto.randomUUID()}.jpg`);
+  try {
+    execFileSync("sips", ["-s", "format", "jpeg", "-s", "formatOptions", "80",
+                          "-Z", "1600", rutaOriginal, "--out", destino],
+                 { stdio: "ignore" });
+    return fs.readFileSync(destino);
+  } catch {
+    return null; // si sips falla, se cae al relleno generado
+  } finally {
+    try { fs.unlinkSync(destino); } catch {}
+  }
+}
 const limpiar = process.argv.includes("--limpiar");
 
 // ---------- generador de PNG (sin librerías) ----------
@@ -84,6 +123,8 @@ const COLOR_POR_CATEGORIA = {
   equipo_audio_video:  [104, 92, 148],
   deportes_aire_libre: [88, 148, 106],
   hogar_jardin:        [168, 132, 96],
+  ropa:                [166, 96, 122],
+  electronicos:        [72, 118, 132],
   otros:               [128, 128, 136],
 };
 
@@ -94,22 +135,59 @@ const CUENTAS = [
 ];
 
 const ITEMS = [
-  { cuenta: 0, titulo: "Taladro percutor Black&Decker 1/2\"", categoria: "herramientas", precio: "75", ciudad: "Ciudad de Guatemala", cantidad: 1,
+  // --- Herramientas ---
+  { cuenta: 0, slug: "taladro", titulo: "Taladro percutor Black&Decker 1/2\"", categoria: "herramientas", precio: "75", ciudad: "Ciudad de Guatemala", cantidad: 1,
     descripcion: "Taladro percutor de 1/2 pulgada, ideal para perforar concreto y block. Incluye maletín y juego de brocas para pared y madera. Está en buen estado, se usa poco." },
-  { cuenta: 0, titulo: "20 sillas plegables blancas", categoria: "mobiliario_eventos", precio: "8", ciudad: "Ciudad de Guatemala", cantidad: 20,
-    descripcion: "Sillas plegables de plástico reforzado, blancas, limpias y en buen estado. El precio es por silla por día. Ideales para fiestas, reuniones o eventos pequeños." },
-  { cuenta: 0, titulo: "Carpa para 50 personas 6x12m", categoria: "mobiliario_eventos", precio: "400", ciudad: "Villa Nueva", cantidad: 2,
-    descripcion: "Carpa blanca de 6 por 12 metros, con estructura de tubo galvanizado. Cubre cómodamente 50 personas sentadas. El armado corre por cuenta de quien renta." },
-  { cuenta: 0, titulo: "Bocina amplificada 15\" con micrófono", categoria: "equipo_audio_video", precio: "150", ciudad: "Ciudad de Guatemala", cantidad: 3,
-    descripcion: "Bocina activa de 15 pulgadas con entrada para micrófono y bluetooth. Incluye un micrófono alámbrico, cable de corriente y tripié. Suena bien para hasta 100 personas." },
-  { cuenta: 1, titulo: "Pulidora de piso industrial", categoria: "herramientas", precio: "200", ciudad: "Mixco", cantidad: 1,
+  { cuenta: 1, slug: "pulidora", titulo: "Pulidora de piso industrial", categoria: "herramientas", precio: "200", ciudad: "Mixco", cantidad: 1,
     descripcion: "Pulidora de piso de 17 pulgadas para trabajo pesado. Sirve para pulir, encerar y lavar pisos de granito o cemento. Se entrega con dos discos." },
-  { cuenta: 1, titulo: "Casa inflable para niños", categoria: "mobiliario_eventos", precio: "350", ciudad: "Santa Catarina Pinula", cantidad: 1,
+  { cuenta: 0, slug: "andamio", titulo: "Andamio de dos cuerpos con plataforma", categoria: "herramientas", precio: "120", ciudad: "Villa Nueva", cantidad: 4,
+    descripcion: "Andamio metálico de dos cuerpos, con plataforma de madera y ruedas. Alcanza unos 3 metros de altura. El precio es por cuerpo por día." },
+
+  // --- Mobiliario para eventos ---
+  { cuenta: 0, slug: "sillas", titulo: "20 sillas plegables blancas", categoria: "mobiliario_eventos", precio: "8", ciudad: "Ciudad de Guatemala", cantidad: 20,
+    descripcion: "Sillas plegables de plástico reforzado, blancas, limpias y en buen estado. El precio es por silla por día. Ideales para fiestas, reuniones o eventos pequeños." },
+  { cuenta: 0, slug: "carpa", titulo: "Carpa para 50 personas 6x12m", categoria: "mobiliario_eventos", precio: "400", ciudad: "Villa Nueva", cantidad: 2,
+    descripcion: "Carpa blanca de 6 por 12 metros, con estructura de tubo galvanizado. Cubre cómodamente 50 personas sentadas. El armado corre por cuenta de quien renta." },
+  { cuenta: 1, slug: "inflable", titulo: "Casa inflable para niños", categoria: "mobiliario_eventos", precio: "350", ciudad: "Santa Catarina Pinula", cantidad: 1,
     descripcion: "Inflable de 3x3 metros con resbaladero, para niños de hasta 10 años. Incluye el motor. Se necesita toma de corriente cerca y un espacio plano." },
-  { cuenta: 1, titulo: "Bicicleta de montaña rodado 29", categoria: "deportes_aire_libre", precio: "60", ciudad: "Mixco", cantidad: 2,
-    descripcion: "Bicicleta de montaña rodado 29, 21 velocidades, frenos de disco. Recién servicieada. Se presta con casco. Talla mediana, para personas de 1.65 a 1.80." },
-  { cuenta: 1, titulo: "Proyector Full HD con pantalla de 100\"", categoria: "equipo_audio_video", precio: "180", ciudad: "Antigua Guatemala", cantidad: 1,
+
+  // --- Audio y video ---
+  { cuenta: 0, slug: "bocina", titulo: "Bocina amplificada 15\" con micrófono", categoria: "equipo_audio_video", precio: "150", ciudad: "Ciudad de Guatemala", cantidad: 3,
+    descripcion: "Bocina activa de 15 pulgadas con entrada para micrófono y bluetooth. Incluye un micrófono alámbrico, cable de corriente y tripié. Suena bien para hasta 100 personas." },
+  { cuenta: 1, slug: "proyector", titulo: "Proyector Full HD con pantalla de 100\"", categoria: "equipo_audio_video", precio: "180", ciudad: "Antigua Guatemala", cantidad: 1,
     descripcion: "Proyector 1080p con entrada HDMI y USB, más pantalla de trípode de 100 pulgadas. Sirve para películas al aire libre o presentaciones. Incluye cable HDMI de 5 metros." },
+  { cuenta: 1, slug: "luces", titulo: "Kit de luces LED para escenario", categoria: "equipo_audio_video", precio: "220", ciudad: "Mixco", cantidad: 2,
+    descripcion: "Cuatro reflectores LED RGB con control DMX y trípodes. Cambian de color al ritmo de la música o se programan. Ideales para fiestas y presentaciones." },
+
+  // --- Deportes y aire libre ---
+  { cuenta: 1, slug: "bicicleta", titulo: "Bicicleta de montaña rodado 29", categoria: "deportes_aire_libre", precio: "60", ciudad: "Mixco", cantidad: 2,
+    descripcion: "Bicicleta de montaña rodado 29, 21 velocidades, frenos de disco. Recién servicieada. Se presta con casco. Talla mediana, para personas de 1.65 a 1.80." },
+  { cuenta: 0, slug: "campana", titulo: "Casa de campaña para 4 personas", categoria: "deportes_aire_libre", precio: "90", ciudad: "Ciudad de Guatemala", cantidad: 3,
+    descripcion: "Casa de campaña impermeable para 4 personas, con doble techo y mosquitero. Se arma en diez minutos. Incluye estacas, vientos y bolsa de carga." },
+  { cuenta: 1, slug: "paddle", titulo: "Tabla de paddle inflable con remo", categoria: "deportes_aire_libre", precio: "130", ciudad: "Antigua Guatemala", cantidad: 2,
+    descripcion: "Tabla de paddle surf inflable de 10 pies, con remo ajustable, bomba de aire, correa de seguridad y mochila. Perfecta para el lago de Amatitlán o Atitlán." },
+
+  // --- Hogar y jardín ---
+  { cuenta: 0, slug: "hidrolavadora", titulo: "Hidrolavadora a presión 2000 PSI", categoria: "hogar_jardin", precio: "140", ciudad: "Villa Nueva", cantidad: 1,
+    descripcion: "Hidrolavadora eléctrica de 2000 PSI con cuatro boquillas. Sirve para lavar carros, patios, paredes y muebles de jardín. Incluye manguera de 8 metros." },
+  { cuenta: 1, slug: "cortadora", titulo: "Cortadora de grama a gasolina", categoria: "hogar_jardin", precio: "110", ciudad: "San José Pinula", cantidad: 1,
+    descripcion: "Cortadora de grama autopropulsada a gasolina, con bolsa recolectora y altura de corte regulable. Se entrega con el tanque lleno." },
+
+  // --- Ropa y trajes ---
+  { cuenta: 0, slug: "vestido", titulo: "Vestido largo de fiesta talla M", categoria: "ropa", precio: "250", ciudad: "Ciudad de Guatemala", cantidad: 1,
+    descripcion: "Vestido largo de gala en azul noche, talla M, con pedrería en el escote. Usado una sola vez y recién lavado en tintorería. Se entrega en funda." },
+  { cuenta: 0, slug: "traje", titulo: "Traje formal de hombre talla 40", categoria: "ropa", precio: "300", ciudad: "Ciudad de Guatemala", cantidad: 1,
+    descripcion: "Traje de dos piezas en gris oxford, talla 40, con camisa blanca y corbata. Ideal para una boda o una graduación. Recién salido de tintorería." },
+  { cuenta: 1, slug: "tipico", titulo: "Traje típico para presentación escolar", categoria: "ropa", precio: "120", ciudad: "Antigua Guatemala", cantidad: 4,
+    descripcion: "Trajes típicos completos para niño y niña, tallas de 6 a 12 años. Para actos cívicos y presentaciones del 15 de septiembre. Güipil, corte y faja." },
+
+  // --- Electrónicos ---
+  { cuenta: 1, slug: "consola", titulo: "Consola PlayStation 5 con dos controles", categoria: "electronicos", precio: "220", ciudad: "Ciudad de Guatemala", cantidad: 2,
+    descripcion: "PlayStation 5 con dos controles inalámbricos, todos los cables y tres juegos instalados. Perfecta para un fin de semana o una fiesta de cumpleaños." },
+  { cuenta: 0, slug: "camara", titulo: "Cámara Canon EOS con lente 18-55", categoria: "electronicos", precio: "280", ciudad: "Mixco", cantidad: 1,
+    descripcion: "Cámara réflex Canon EOS con lente 18-55mm, dos baterías, cargador, memoria de 64GB y bolso. Buena para un evento o un viaje." },
+  { cuenta: 1, slug: "dron", titulo: "Dron DJI Mini con estuche", categoria: "electronicos", precio: "350", ciudad: "Ciudad de Guatemala", cantidad: 1,
+    descripcion: "Dron DJI Mini con cámara 4K, tres baterías, control remoto y estuche rígido. Pesa menos de 250 gramos. Se entrega con las hélices de repuesto." },
 ];
 
 // ---------- limpieza ----------
@@ -144,6 +222,8 @@ async function sembrar() {
     console.log(`  Cuenta creada: ${c.nombre}`);
   }
 
+  let conFotoReal = 0, conRelleno = 0;
+
   for (const item of ITEMS) {
     const usuarioId = ids[item.cuenta];
 
@@ -158,20 +238,36 @@ async function sembrar() {
     }).select("id").single();
     if (error) throw new Error(`No se pudo publicar "${item.titulo}": ${error.message}`);
 
+    const fotoReal = buscarFotoReal(item.slug);
+    const bytesReales = fotoReal ? achicarConSips(fotoReal) : null;
     const color = COLOR_POR_CATEGORIA[item.categoria];
-    for (let orden = 0; orden < 2; orden++) {
-      const png = generarPng(1200, 900, color.map((v) => Math.max(0, v - orden * 22)));
-      const ruta = `${usuarioId}/${crypto.randomUUID()}.png`;
-      const { error: errSubida } = await admin.storage
-        .from("fotos-items").upload(ruta, png, { contentType: "image/png" });
-      if (errSubida) throw new Error(`No se pudo subir la foto: ${errSubida.message}`);
 
+    if (bytesReales) {
+      const ruta = `${usuarioId}/${crypto.randomUUID()}.jpg`;
+      const { error: errSubida } = await admin.storage
+        .from("fotos-items").upload(ruta, bytesReales, { contentType: "image/jpeg" });
+      if (errSubida) throw new Error(`No se pudo subir ${item.slug}: ${errSubida.message}`);
       const { data: publica } = admin.storage.from("fotos-items").getPublicUrl(ruta);
       await admin.from("listing_photos").insert({
-        listing_id: publicacion.id, url: publica.publicUrl, orden,
+        listing_id: publicacion.id, url: publica.publicUrl, orden: 0,
       });
+      conFotoReal++;
+      console.log(`  Publicado: ${item.titulo}  [foto real, ${(bytesReales.length / 1024).toFixed(0)} KB]`);
+    } else {
+      for (let orden = 0; orden < 2; orden++) {
+        const png = generarPng(1200, 900, color.map((v) => Math.max(0, v - orden * 22)));
+        const ruta = `${usuarioId}/${crypto.randomUUID()}.png`;
+        const { error: errSubida } = await admin.storage
+          .from("fotos-items").upload(ruta, png, { contentType: "image/png" });
+        if (errSubida) throw new Error(`No se pudo subir la foto: ${errSubida.message}`);
+        const { data: publica } = admin.storage.from("fotos-items").getPublicUrl(ruta);
+        await admin.from("listing_photos").insert({
+          listing_id: publicacion.id, url: publica.publicUrl, orden,
+        });
+      }
+      conRelleno++;
+      console.log(`  Publicado: ${item.titulo}  [relleno de color — falta fotos-demo/${item.slug}.jpg]`);
     }
-    console.log(`  Publicado: ${item.titulo}`);
   }
 
   // Comprobación final: ¿lo ve alguien SIN cuenta?
@@ -189,6 +285,12 @@ async function sembrar() {
   }
   const sinFoto = (visibles ?? []).filter((v) => (v.listing_photos?.length ?? 0) === 0);
   console.log(`  ${visibles.length} ítems visibles para alguien sin cuenta.`);
+  console.log(`  ${conFotoReal} con foto real, ${conRelleno} con relleno de color.`);
+  if (conRelleno > 0) {
+    const faltantes = ITEMS.filter((i) => !buscarFotoReal(i.slug)).map((i) => i.slug + ".jpg");
+    console.log(`\n  Para mejorar la demo, poné estas fotos en fotos-demo/ y volvé a correr:`);
+    console.log(`  ${faltantes.join(", ")}`);
+  }
   console.log(`  ${sinFoto.length} de ellos sin foto (deberían ser 0).`);
   if (visibles.length !== ITEMS.length || sinFoto.length > 0) process.exit(1);
 }

@@ -5,6 +5,9 @@ import { crearClienteServidor } from "@/lib/supabase/server";
 import { formatearQuetzales } from "@/lib/dinero";
 import { etiquetaDeCategoria } from "@/lib/categorias";
 import type { PerfilPublico } from "@/lib/tipos";
+import SelectorFechas from "@/components/SelectorFechas";
+import { diasSinCupo } from "@/lib/disponibilidad";
+import { hoyEnGuatemala } from "@/lib/fechas";
 
 type ItemCompleto = {
   id: string;
@@ -52,6 +55,21 @@ export default async function FichaItem({ params }: { params: Promise<{ id: stri
     .single<PerfilPublico>();
 
   const fotos = [...item.listing_photos].sort((a, b) => a.orden - b.orden);
+
+  // Quién está mirando, para decidir si puede reservar.
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Los días ya comprometidos, para pintarlos como no disponibles. Se miran
+  // 90 días hacia adelante: más allá de eso nadie reserva un taladro.
+  const hoy = hoyEnGuatemala();
+  const { data: ocupadas } = await supabase
+    .from("reservations")
+    .select("inicio_en, fin_en")
+    .eq("listing_id", item.id)
+    .in("estado", ["solicitada", "aceptada", "pagada", "entregada"])
+    .gte("fin_en", hoy);
+
+  const diasOcupados = diasSinCupo(hoy, 90, item.cantidad_disponible, ocupadas ?? []);
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-8">
@@ -120,17 +138,17 @@ export default async function FichaItem({ params }: { params: Promise<{ id: stri
           persona, sin dejar que meta HTML: React escapa el texto solo. */}
       <p className="mt-2 whitespace-pre-line leading-relaxed">{item.descripcion}</p>
 
-      <div className="mt-10 rounded-xl border border-slate-200 p-5">
-        <button
-          type="button"
-          disabled
-          className="w-full cursor-not-allowed rounded-lg bg-slate-200 px-4 py-3 font-medium text-slate-500"
-        >
-          Solicitar reserva
-        </button>
-        <p className="mt-2 text-center text-sm text-slate-500">
-          Las reservas y el pago en línea todavía no están habilitados.
-        </p>
+      <div className="mt-10">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+          Reservar
+        </h2>
+        <SelectorFechas
+          listingId={item.id}
+          precioPorDiaCentavos={item.precio_por_dia_centavos}
+          diasOcupados={diasOcupados}
+          haySesion={Boolean(user)}
+          esMio={user?.id === item.user_id}
+        />
       </div>
     </main>
   );
