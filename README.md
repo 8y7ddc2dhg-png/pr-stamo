@@ -105,7 +105,9 @@ migración ya aplicada no se edita; si hay que corregir algo, se escribe una nue
 
 | Archivo | Qué hace | ¿Aplicada? |
 |---|---|---|
-| `0001_inicial.sql` | Las 6 tablas, los índices, RLS activado y cerrado | ⬜ Pendiente |
+| `0001_inicial.sql` | Las 6 tablas, los índices, RLS activado y cerrado | ✅ Sí |
+| `0002_rls_listings.sql` | Permisos de publicaciones y fotos; vista `perfiles_publicos` | ⬜ Pendiente |
+| `0003_storage_fotos.sql` | Bucket `fotos-items` y permisos de archivos | ⬜ Pendiente |
 
 ---
 
