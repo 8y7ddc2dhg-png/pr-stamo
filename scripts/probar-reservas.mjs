@@ -8,6 +8,7 @@
  * base de datos. Eso lo cubren las 19 pruebas de `npm test`.
  */
 import { createClient } from "@supabase/supabase-js";
+import { borrarUsuariosDemo } from "./limpiar-demo.mjs";
 
 const URL_SUPA = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -121,8 +122,15 @@ try {
   anotar("No se puede pagar dos veces la misma reserva", !!errDoble,
     errDoble ? "rechazado" : "SE GUARDÓ (grave)");
 } finally {
-  for (const id of creados) await admin.auth.admin.deleteUser(id);
-  anotar("Se limpian los usuarios de prueba", true, `${creados.length} borrados`);
+  // Antes esto decía "borrados" sin comprobar nada, y las cuentas con reservas
+  // quedaban dando vueltas: borrar un usuario con historial de dinero está
+  // prohibido por la base de datos, a propósito. Ahora se desarma en orden y
+  // se verifica de verdad.
+  const limpieza = await borrarUsuariosDemo(admin, "ejemplo-prestamo.test");
+  anotar("Se limpian los usuarios de prueba", limpieza.fallos.length === 0,
+    limpieza.fallos.length === 0
+      ? `${limpieza.cuentas} cuentas, ${limpieza.reservas} reservas, ${limpieza.pagos} pagos`
+      : limpieza.fallos.join(" / "));
 }
 
 let fallos = 0;

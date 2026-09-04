@@ -13,7 +13,8 @@
     "sembrar:limpiar": "node --env-file=.env.local scripts/sembrar-ejemplos.mjs --limpiar",
     "probar:permisos": "node --env-file=.env.local scripts/probar-permisos.mjs",
     "test": "node --test \"lib/**/*.test.ts\"",
-    "probar:reservas": "node --env-file=.env.local scripts/probar-reservas.mjs"
+    "probar:reservas": "node --env-file=.env.local scripts/probar-reservas.mjs",
+    "sesion:prueba": "node --env-file=.env.local scripts/sesion-de-prueba.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.6",

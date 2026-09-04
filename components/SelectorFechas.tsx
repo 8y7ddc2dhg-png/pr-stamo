@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { contarDias, hoyEnGuatemala, sumarDias, validarRango } from "@/lib/fechas";
+import { contarDias, formatearRango, hoyEnGuatemala, sumarDias, validarRango } from "@/lib/fechas";
 import { formatearQuetzales } from "@/lib/dinero";
 
 /**
@@ -40,24 +40,48 @@ export default function SelectorFechas({
   // está ocupado. Mostrar un precio sobre fechas imposibles sería mentir.
   let dias = 0;
   let total = 0;
-  let choque: string | null = null;
+  let aviso: string | null = null;
 
-  if (inicio && fin && !validarRango(inicio, fin)) {
-    dias = contarDias(inicio, fin);
-    total = precioPorDiaCentavos * dias;
-    for (let i = 0; i < dias; i++) {
-      if (ocupados.has(sumarDias(inicio, i))) {
-        choque = "Alguno de esos días ya está reservado. Probá con otras fechas.";
-        break;
+  // Un campo de fecha deja su valor VACÍO hasta que la fecha esté completa y
+  // sea válida. Alguien puede ver algo escrito en el campo y que el valor no
+  // haya entrado. Por eso, cuando falta una fecha, se dice explícitamente en
+  // vez de dejar un botón gris que no explica nada.
+  if (!inicio || !fin) {
+    aviso = "Elegí las dos fechas para ver el total.";
+  } else {
+    const problemaDeFechas = validarRango(inicio, fin);
+    if (problemaDeFechas) {
+      aviso = problemaDeFechas;
+    } else {
+      dias = contarDias(inicio, fin);
+      total = precioPorDiaCentavos * dias;
+      for (let i = 0; i < dias; i++) {
+        if (ocupados.has(sumarDias(inicio, i))) {
+          aviso = "Alguno de esos días ya está reservado. Probá con otras fechas.";
+          dias = 0;
+          break;
+        }
       }
     }
   }
 
+  const listoParaReservar = dias > 0 && !aviso;
+
   async function reservar() {
     setError(null);
+
+    // El botón ya NO está deshabilitado cuando faltan datos: se puede apretar
+    // y responde diciendo qué falta. Un control gris que no reacciona deja a
+    // la persona sin saber si la app está rota o si hizo algo mal.
+    if (!inicio || !fin) {
+      return setError(
+        "Faltan las fechas. Tocá los campos de arriba y elegí un día en el calendario; " +
+          "si escribís a mano, la fecha tiene que quedar completa."
+      );
+    }
     const problema = validarRango(inicio, fin);
     if (problema) return setError(problema);
-    if (choque) return setError(choque);
+    if (aviso) return setError(aviso);
 
     setEnviando(true);
     try {
@@ -113,8 +137,13 @@ export default function SelectorFechas({
         </div>
       </div>
 
-      {dias > 0 && !choque && (
+      {listoParaReservar && (
         <dl className="mt-4 space-y-1 border-t border-slate-200 pt-4 text-sm">
+          {/* Repetir las fechas en palabras es la confirmación de que el campo
+              sí tomó lo que la persona quiso poner. */}
+          <p className="pb-2 font-medium text-slate-900">
+            Reservás {formatearRango(inicio, fin)}
+          </p>
           <div className="flex justify-between">
             <dt className="text-slate-600">
               {formatearQuetzales(precioPorDiaCentavos)} × {dias} {dias === 1 ? "día" : "días"}
@@ -126,20 +155,22 @@ export default function SelectorFechas({
             <dd>{formatearQuetzales(total)}</dd>
           </div>
           <p className="pt-1 text-xs text-slate-500">
-            Del {inicio} al {fin} son {dias} {dias === 1 ? "día" : "días"}: se cuentan los dos extremos.
+            Son {dias} {dias === 1 ? "día" : "días"}: se cuentan el primero y el último.
           </p>
         </dl>
       )}
 
-      {(choque || error) && (
-        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{choque ?? error}</p>
-      )}
+      {error ? (
+        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
+      ) : aviso && (inicio || fin) ? (
+        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{aviso}</p>
+      ) : null}
 
       {haySesion ? (
         <button
           type="button"
           onClick={reservar}
-          disabled={enviando || !inicio || !fin || Boolean(choque)}
+          disabled={enviando}
           className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-3 font-medium text-white disabled:opacity-50"
         >
           {enviando ? "Reservando…" : "Reservar"}

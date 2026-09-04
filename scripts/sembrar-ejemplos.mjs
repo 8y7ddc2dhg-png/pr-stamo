@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { execFileSync } from "node:child_process";
+import { borrarUsuariosDemo } from "./limpiar-demo.mjs";
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -192,18 +193,13 @@ const ITEMS = [
 
 // ---------- limpieza ----------
 async function borrarTodoLoSembrado() {
-  const { data: lista } = await admin.auth.admin.listUsers({ perPage: 1000 });
-  const demos = (lista?.users ?? []).filter((u) => u.email?.endsWith(`@${DOMINIO}`));
-
-  for (const u of demos) {
-    const { data: archivos } = await admin.storage.from("fotos-items").list(u.id);
-    if (archivos?.length) {
-      await admin.storage.from("fotos-items").remove(archivos.map((a) => `${u.id}/${a.name}`));
-    }
-    // Las publicaciones se van solas al borrar la cuenta (on delete cascade).
-    await admin.auth.admin.deleteUser(u.id);
+  const r = await borrarUsuariosDemo(admin, DOMINIO);
+  console.log(`  Borrados: ${r.cuentas} cuentas, ${r.reservas} reservas, ${r.pagos} pagos.`);
+  if (r.fallos.length > 0) {
+    console.log("  NO se pudieron borrar:");
+    for (const f of r.fallos) console.log(`    ${f}`);
+    throw new Error("Quedaron datos de ejemplo sin borrar.");
   }
-  console.log(`  Se borraron ${demos.length} cuentas de ejemplo y todo lo que colgaba de ellas.`);
 }
 
 // ---------- siembra ----------
