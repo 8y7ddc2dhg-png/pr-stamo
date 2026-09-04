@@ -456,6 +456,23 @@ supabase/migrations/0002_rls_listings.sql
 
 ---
 
+#### Deuda asumida por la fecha (entrega del 7 de septiembre de 2026)
+
+Cosas que se hicieron de la forma rápida y correcta-por-ahora, no de la forma
+definitiva. Ninguna es un error: son decisiones conscientes que hay que revisar
+antes de que esto tenga usuarios de verdad.
+
+| Qué | Por qué se aceptó | Cuándo hay que arreglarlo |
+|---|---|---|
+| No se pueden editar las publicaciones, solo crearlas | Editar es otro formulario, otra pantalla y el manejo de reemplazar fotos | Apenas alguien se equivoque al publicar |
+| Tampoco hay botón de despublicar en la interfaz | La regla de base de datos ya existe y funciona (probado); falta solo el botón | Junto con la edición |
+| El perfil no tiene foto | No estaba entre las cuatro cosas pedidas | Cuando importe la confianza entre desconocidos |
+| La búsqueda no tolera errores de dedo ni plurales | `ILIKE` es 3 líneas; búsqueda de texto completo es medio día | Cuando el catálogo pase de ~200 ítems |
+| El catálogo muestra máximo 60 ítems, sin paginación | Con 8 ítems no se nota | Al pasar de ~60 publicaciones |
+| Los ítems de ejemplo están mezclados con los reales | Sirven para la demostración | Correr `npm run sembrar:limpiar` antes de abrirlo a gente real |
+| No hay página de error ni de "no encontrado" propias | Next.js muestra una pantalla técnica en inglés | Media hora de trabajo, alto impacto |
+| Sin analítica | No hay usuarios que medir todavía | Antes de invitar gente |
+
 ### FASE 2 — Disponibilidad, solicitud y aceptación
 
 **Objetivo:** cerrar el circuito de la reserva *sin dinero*. Alguien solicita fechas, el publicador acepta o rechaza, ambos reciben correo.
