@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { avisarMensaje } from "@/lib/correos/avisar";
 
 /**
  * Mandar un mensaje.
@@ -55,6 +56,8 @@ export async function POST(peticion: Request) {
       { status: 403 }
     );
   }
+
+  await avisarMensaje(reservationId, user.id, texto);
 
   return NextResponse.json({ ok: true, mensaje });
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { avisarPago } from "@/lib/correos/avisar";
 
 /**
  * ⚠️⚠️  PAGO SIMULADO — NO COBRA NADA  ⚠️⚠️
@@ -87,6 +88,8 @@ export async function POST(
   if (errorEstado) {
     return NextResponse.json({ error: "No se pudo actualizar la reserva." }, { status: 500 });
   }
+
+  await avisarPago(reserva.id, metodo);
 
   return NextResponse.json({ ok: true });
 }

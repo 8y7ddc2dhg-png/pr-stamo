@@ -150,8 +150,37 @@ código que no corre no sirve de nada.
 |---|---|---|
 | [Vercel](https://vercel.com) | Alojar el sitio | Se cae todo |
 | [Supabase](https://supabase.com) | Base de datos, ingreso, fotos | Se cae todo |
-| [Resend](https://resend.com) | Correos | Nadie se entera de solicitudes nuevas |
+| [Resend](https://resend.com) | Correos | Nadie se entera de reservas nuevas |
 | [Recurrente](https://recurrente.com) | Cobrar con tarjeta | No se puede pagar |
+
+---
+
+## Correos
+
+Resend cumple **dos papeles distintos**, y conviene no confundirlos:
+
+| | Quién lo manda | Cómo se configura |
+|---|---|---|
+| **Enlace mágico de ingreso** | Supabase, con Resend de cartero | Con clics: Supabase → Authentication → Emails → SMTP Settings |
+| **Avisos de la app** (reserva nueva, pago, mensaje) | Nuestro código (`lib/correos/`) | Con las variables `RESEND_API_KEY` y `CORREO_REMITENTE` |
+
+Datos para el SMTP de Supabase:
+
+```
+Host:     smtp.resend.com
+Port:     587
+Username: resend
+Password: la API key de Resend (la misma que RESEND_API_KEY)
+Sender:   la dirección de CORREO_REMITENTE
+```
+
+**Sin dominio verificado, Resend solo deja mandar correos a la dirección con la
+que se creó la cuenta.** Para que otras personas puedan ingresar, hay que
+verificar un dominio propio en Resend (Domains → Add Domain, y copiar los
+registros DNS que pide).
+
+Si las variables no están configuradas, la app funciona igual: no manda avisos
+y lo deja anotado en el registro del servidor.
 
 ---
 

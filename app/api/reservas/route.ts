@@ -3,6 +3,7 @@ import { crearClienteServidor } from "@/lib/supabase/server";
 import { validarRango, contarDias } from "@/lib/fechas";
 import { hayDisponibilidad } from "@/lib/disponibilidad";
 import { repartirDinero } from "@/lib/comision";
+import { avisarNuevaReserva } from "@/lib/correos/avisar";
 
 /**
  * Crear una reserva.
@@ -98,6 +99,12 @@ export async function POST(peticion: Request) {
       { status: 500 }
     );
   }
+
+  // El aviso va DESPUÉS de guardar y su resultado se ignora: si el correo
+  // falla, la reserva ya está hecha y eso es lo que importa. Se espera en vez
+  // de dispararlo y olvidarlo porque en Vercel el trabajo que queda pendiente
+  // cuando la función responde puede no llegar a ejecutarse nunca.
+  await avisarNuevaReserva(reserva.id);
 
   return NextResponse.json({ ok: true, id: reserva.id });
 }
