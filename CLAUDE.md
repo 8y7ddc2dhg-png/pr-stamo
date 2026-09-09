@@ -53,6 +53,9 @@ Al crear la reserva se congela el monto calculado; no se recalcula nunca despué
   Son visibles para el usuario.
 - **Variables y funciones:** en español (`calcularDisponibilidad`,
   `precioTotal`). Un equipo que piensa en español no debería traducir mentalmente.
+- **Única excepción — los hooks de React:** tienen que empezar con `use`
+  (`useCarrito`, `useHidratado`). No es estilo: React y su revisor de código
+  los reconocen por ese prefijo, y uno que no lo lleve deja de ser verificado.
 
 ---
 

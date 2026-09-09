@@ -43,6 +43,10 @@ export default async function MisReservas({
   return (
     <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
       <h1 className="text-2xl font-semibold">Mis reservas</h1>
+      <p className="mt-1 text-tinta-600">
+        Lo que reservaste directo.{" "}
+        <Link href="/mis-pedidos" className="underline">Ver pedidos del carrito</Link>
+      </p>
 
       {nueva && (
         <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-900">

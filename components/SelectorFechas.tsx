@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { contarDias, formatearRango, hoyEnGuatemala, sumarDias, validarRango } from "@/lib/fechas";
 import { formatearQuetzales } from "@/lib/dinero";
+import { agregarAlCarrito } from "@/lib/carrito";
 
 /**
  * Elegir fechas y reservar.
@@ -15,13 +16,23 @@ import { formatearQuetzales } from "@/lib/dinero";
  */
 export default function SelectorFechas({
   listingId,
+  titulo,
+  fotoUrl,
+  ciudad,
   precioPorDiaCentavos,
+  publicadorId,
+  publicadorNombre,
   diasOcupados,
   haySesion,
   esMio,
 }: {
   listingId: string;
+  titulo: string;
+  fotoUrl: string | null;
+  ciudad: string;
   precioPorDiaCentavos: number;
+  publicadorId: string;
+  publicadorNombre: string;
   diasOcupados: string[];
   haySesion: boolean;
   esMio: boolean;
@@ -33,6 +44,25 @@ export default function SelectorFechas({
   const [fin, setFin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  const [avisoCarrito, setAvisoCarrito] = useState<string | null>(null);
+
+  const refInicio = useRef<HTMLInputElement>(null);
+  const refFin = useRef<HTMLInputElement>(null);
+
+  /*
+    Si alguien escribe una fecha ANTES de que termine de cargar el JavaScript,
+    el navegador la guarda en el campo pero React todavía no existe para
+    enterarse. Resultado: la persona ve la fecha en pantalla y el código la ve
+    vacía, así que el botón contesta "faltan las fechas" sobre un campo que
+    claramente tiene una. Esto lee lo que el campo ya trae y lo mete al estado.
+  */
+  useEffect(() => {
+    const desdeElCampo = refInicio.current?.value;
+    const hastaElCampo = refFin.current?.value;
+    if (desdeElCampo) setInicio((actual) => actual || desdeElCampo);
+    if (hastaElCampo) setFin((actual) => actual || hastaElCampo);
+  }, []);
 
   const ocupados = new Set(diasOcupados);
 
@@ -70,25 +100,40 @@ export default function SelectorFechas({
   async function reservar() {
     setError(null);
 
+    // Se lee del campo si el estado viniera vacío: lo que la persona VE en
+    // pantalla manda sobre lo que el código cree tener guardado.
+    const desde = inicio || refInicio.current?.value || "";
+    const hasta = fin || refFin.current?.value || "";
+    if (desde !== inicio) setInicio(desde);
+    if (hasta !== fin) setFin(hasta);
+
     // El botón ya NO está deshabilitado cuando faltan datos: se puede apretar
     // y responde diciendo qué falta. Un control gris que no reacciona deja a
     // la persona sin saber si la app está rota o si hizo algo mal.
-    if (!inicio || !fin) {
+    if (!desde || !hasta) {
       return setError(
         "Faltan las fechas. Tocá los campos de arriba y elegí un día en el calendario; " +
           "si escribís a mano, la fecha tiene que quedar completa."
       );
     }
-    const problema = validarRango(inicio, fin);
+    const problema = validarRango(desde, hasta);
     if (problema) return setError(problema);
-    if (aviso) return setError(aviso);
+
+    // La disponibilidad se revisa contra las fechas recién leídas, no contra
+    // el aviso calculado en el render anterior, que podría estar desfasado.
+    const diasPedidos = contarDias(desde, hasta);
+    for (let i = 0; i < diasPedidos; i++) {
+      if (ocupados.has(sumarDias(desde, i))) {
+        return setError("Alguno de esos días ya está reservado. Probá con otras fechas.");
+      }
+    }
 
     setEnviando(true);
     try {
       const respuesta = await fetch("/api/reservas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listing_id: listingId, inicio_en: inicio, fin_en: fin }),
+        body: JSON.stringify({ listing_id: listingId, inicio_en: desde, fin_en: hasta }),
       });
       const cuerpo = await respuesta.json().catch(() => ({}));
 
@@ -102,6 +147,46 @@ export default function SelectorFechas({
       setError("No pudimos conectarnos. Revisá tu internet e intentá de nuevo.");
       setEnviando(false);
     }
+  }
+
+  /**
+   * Agregar al carrito comparte las validaciones con reservar: no tendría
+   * sentido dejar meter al carrito unas fechas que después se van a rechazar.
+   * Lo que NO hace es apartar nada: el carrito es una intención, y la
+   * disponibilidad se vuelve a verificar al confirmar la compra.
+   */
+  function agregarAlCarritoDesdeAqui() {
+    setError(null);
+    setAvisoCarrito(null);
+
+    const desde = inicio || refInicio.current?.value || "";
+    const hasta = fin || refFin.current?.value || "";
+    if (desde !== inicio) setInicio(desde);
+    if (hasta !== fin) setFin(hasta);
+
+    if (!desde || !hasta) {
+      return setError("Elegí las fechas antes de agregar al carrito.");
+    }
+    const problema = validarRango(desde, hasta);
+    if (problema) return setError(problema);
+
+    const diasPedidos = contarDias(desde, hasta);
+    for (let i = 0; i < diasPedidos; i++) {
+      if (ocupados.has(sumarDias(desde, i))) {
+        return setError("Alguno de esos días ya está reservado. Probá con otras fechas.");
+      }
+    }
+
+    const seAgrego = agregarAlCarrito({
+      listingId, titulo, fotoUrl, ciudad, precioPorDiaCentavos,
+      publicadorId, publicadorNombre, inicio: desde, fin: hasta,
+    });
+
+    setAvisoCarrito(
+      seAgrego
+        ? "Agregado al carrito."
+        : "Eso ya estaba en tu carrito con esas mismas fechas."
+    );
   }
 
   if (esMio) {
@@ -122,7 +207,7 @@ export default function SelectorFechas({
         <div>
           <label htmlFor="inicio" className="block text-sm font-medium">Desde</label>
           <input
-            id="inicio" type="date" min={hoy} value={inicio}
+            id="inicio" ref={refInicio} type="date" min={hoy} value={inicio}
             onChange={(e) => { setInicio(e.target.value); if (fin && fin < e.target.value) setFin(e.target.value); }}
             className={claseCampo}
           />
@@ -130,7 +215,7 @@ export default function SelectorFechas({
         <div>
           <label htmlFor="fin" className="block text-sm font-medium">Hasta</label>
           <input
-            id="fin" type="date" min={inicio || hoy} value={fin}
+            id="fin" ref={refFin} type="date" min={inicio || hoy} value={fin}
             onChange={(e) => setFin(e.target.value)}
             className={claseCampo}
           />
@@ -155,7 +240,9 @@ export default function SelectorFechas({
             <dd>{formatearQuetzales(total)}</dd>
           </div>
           <p className="pt-1 text-xs text-tinta-500">
-            Son {dias} {dias === 1 ? "día" : "días"}: se cuentan el primero y el último.
+            {inicio === fin
+              ? "Un solo día: lo recibís y lo devolvés el mismo día."
+              : `Son ${dias} días: se cuentan el primero y el último.`}
           </p>
         </dl>
       )}
@@ -167,14 +254,35 @@ export default function SelectorFechas({
       ) : null}
 
       {haySesion ? (
-        <button
-          type="button"
-          onClick={reservar}
-          disabled={enviando}
-          className="mt-4 w-full rounded-xl bg-marca-800 px-4 py-3 font-medium text-white disabled:opacity-50"
-        >
-          {enviando ? "Reservando…" : "Reservar"}
-        </button>
+        <div className="mt-4 space-y-2">
+          <button
+            type="button"
+            onClick={reservar}
+            disabled={enviando}
+            className="w-full rounded-xl bg-marca-800 px-4 py-3 font-medium text-white disabled:opacity-50"
+          >
+            {enviando ? "Reservando…" : "Reservar"}
+          </button>
+
+          {/* Dos caminos que conviven: reservar de una, o juntar varias cosas y
+              pagarlas de una sola vez. El de reserva directa va primero porque
+              es el más corto. */}
+          <button
+            type="button"
+            onClick={agregarAlCarritoDesdeAqui}
+            className="w-full rounded-xl border-[0.5px] border-tinta-300 bg-white px-4 py-3
+                       font-medium transition-colors hover:border-tinta-400"
+          >
+            Agregar al carrito
+          </button>
+
+          {avisoCarrito && (
+            <p className="rounded-xl bg-marca-50 px-3 py-2 text-sm text-marca-800">
+              {avisoCarrito}{" "}
+              <a href="/carrito" className="font-medium underline">Ver carrito</a>
+            </p>
+          )}
+        </div>
       ) : (
         <a
           href={`/ingresar?volver_a=/item/${listingId}`}

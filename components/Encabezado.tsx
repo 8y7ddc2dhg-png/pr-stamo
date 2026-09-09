@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import ContadorCarrito from "@/components/ContadorCarrito";
 
 /**
  * La barra de arriba: logo, "Publicar" y el avatar de quien está conectado.
@@ -44,6 +45,8 @@ export default async function Encabezado() {
         </Link>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <ContadorCarrito />
+
           {user ? (
             <>
               <Link

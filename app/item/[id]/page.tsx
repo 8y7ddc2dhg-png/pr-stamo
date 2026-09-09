@@ -160,6 +160,11 @@ export default async function FichaItem({ params }: { params: Promise<{ id: stri
 
           <SelectorFechas
             listingId={item.id}
+            titulo={item.titulo}
+            fotoUrl={fotos[0]?.url ?? null}
+            ciudad={item.ciudad}
+            publicadorId={item.user_id}
+            publicadorNombre={publicador?.nombre ?? "Alguien"}
             precioPorDiaCentavos={item.precio_por_dia_centavos}
             diasOcupados={diasOcupados}
             haySesion={Boolean(user)}
