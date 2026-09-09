@@ -53,6 +53,30 @@ export default async function PaginaMiPerfil() {
       <div className="mt-8">
         <FormularioPerfil perfil={perfil} />
       </div>
+
+      {/* Cerrar sesión vive acá, al final del perfil, y no en la barra de
+          arriba: es una acción que se busca a propósito, no algo que uno quiera
+          tener a un dedo de distancia del botón de publicar.
+
+          Va por POST y no por un enlace común porque un GET puede dispararse
+          solo si alguien pone la dirección dentro de una imagen en otro sitio,
+          y te cerraría la sesión sin que lo pidieras. */}
+      <div className="mt-10 border-t border-tinta-200 pt-6">
+        <h2 className="text-sm font-medium">Sesión</h2>
+        <p className="mt-1 text-sm text-tinta-600">
+          Estás dentro como <strong className="break-all">{perfil.correo}</strong>. Si cerrás
+          sesión, para volver a entrar te mandamos otro enlace al correo.
+        </p>
+        <form action="/auth/salir" method="post" className="mt-3">
+          <button
+            type="submit"
+            className="rounded-xl border-[0.5px] border-tinta-300 bg-white px-5 py-2.5 text-sm
+                       font-medium transition-colors hover:border-red-300 hover:text-red-700"
+          >
+            Cerrar sesión
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
