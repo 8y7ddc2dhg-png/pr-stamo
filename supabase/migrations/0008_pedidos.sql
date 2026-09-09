@@ -15,6 +15,16 @@
 -- =============================================================================
 
 
+-- TODO ESTE ARCHIVO ES UNA SOLA OPERACIÓN.
+--
+-- "begin" y "commit" hacen que Postgres aplique las 259 líneas completas o
+-- ninguna. Si algo falla en la mitad, la base queda exactamente como estaba.
+-- Sin esto, el editor de Supabase ejecuta sentencia por sentencia y un error
+-- a la mitad dejaría, por ejemplo, la tabla creada pero sin la función que la
+-- llena, que es peor que no haber empezado.
+begin;
+
+
 create type tipo_entrega as enum ('recoger', 'domicilio');
 
 
@@ -257,3 +267,5 @@ $$;
 
 revoke all on function public.crear_pedidos_del_carrito from public, anon;
 grant execute on function public.crear_pedidos_del_carrito to authenticated;
+
+commit;
