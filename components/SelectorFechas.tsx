@@ -62,6 +62,7 @@ export default function SelectorFechas({
     const hastaElCampo = refFin.current?.value;
     if (desdeElCampo) setInicio((actual) => actual || desdeElCampo);
     if (hastaElCampo) setFin((actual) => actual || hastaElCampo);
+    if (desdeElCampo || hastaElCampo) setError(null);
   }, []);
 
   const ocupados = new Set(diasOcupados);
@@ -208,7 +209,14 @@ export default function SelectorFechas({
           <label htmlFor="inicio" className="block text-sm font-medium">Desde</label>
           <input
             id="inicio" ref={refInicio} type="date" min={hoy} value={inicio}
-            onChange={(e) => { setInicio(e.target.value); if (fin && fin < e.target.value) setFin(e.target.value); }}
+            onChange={(e) => {
+              // Un mensaje de error sobre las fechas viejas no dice nada sobre
+              // las nuevas. Dejarlo ahí hace que la persona lea "faltan las
+              // fechas" justo encima del total ya calculado.
+              setError(null);
+              setInicio(e.target.value);
+              if (fin && fin < e.target.value) setFin(e.target.value);
+            }}
             className={claseCampo}
           />
         </div>
@@ -216,7 +224,7 @@ export default function SelectorFechas({
           <label htmlFor="fin" className="block text-sm font-medium">Hasta</label>
           <input
             id="fin" ref={refFin} type="date" min={inicio || hoy} value={fin}
-            onChange={(e) => setFin(e.target.value)}
+            onChange={(e) => { setError(null); setFin(e.target.value); }}
             className={claseCampo}
           />
         </div>
