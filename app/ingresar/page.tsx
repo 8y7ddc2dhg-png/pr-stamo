@@ -49,8 +49,18 @@ function FormularioIngreso() {
       });
 
       if (fallo) {
+        // Distinguir el límite de envíos del resto importa: mandaba a la gente
+        // a revisar su dirección cuando el problema era otro y no dependía de
+        // ellos. Un mensaje de error que apunta al lugar equivocado hace perder
+        // más tiempo que no decir nada.
+        const esLimite =
+          fallo.status === 429 || fallo.code === "over_email_send_rate_limit";
+
         setError(
-          "No pudimos mandar el correo. Revisá que la dirección esté bien escrita e intentá de nuevo."
+          esLimite
+            ? "Se alcanzó el límite de correos de la plataforma. Esperá unos minutos y volvé a intentar. " +
+              "Si esto pasa seguido, hay que conectar el servidor de correo propio (ver README)."
+            : "No pudimos mandar el correo. Revisá que la dirección esté bien escrita e intentá de nuevo."
         );
         return;
       }
