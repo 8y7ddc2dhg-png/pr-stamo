@@ -82,20 +82,20 @@ function FormularioIngreso() {
 
   if (estado === "enviado") {
     return (
-      <div className="rounded-xl border border-slate-200 p-6">
+      <div className="rounded-xl border-[0.5px] border-tinta-200 bg-white p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Revisá tu correo</h2>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-tinta-600">
           Le mandamos un enlace a <strong className="break-all">{correo}</strong>.
           Tocalo y entrás directo, sin contraseña.
         </p>
-        <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Si no lo ves en un minuto, <strong>fijate en la carpeta de spam</strong> o
           correo no deseado. Es lo que pasa más seguido.
         </p>
         <button
           type="button"
           onClick={() => setEstado("listo")}
-          className="mt-4 text-sm font-medium text-slate-600 underline underline-offset-2"
+          className="mt-4 text-sm font-medium text-tinta-600 underline underline-offset-2"
         >
           Usar otro correo
         </button>
@@ -104,7 +104,7 @@ function FormularioIngreso() {
   }
 
   return (
-    <form onSubmit={enviarEnlace} className="rounded-xl border border-slate-200 p-6">
+    <form onSubmit={enviarEnlace} className="rounded-xl border-[0.5px] border-tinta-200 bg-white p-5 sm:p-6">
       <label htmlFor="correo" className="block text-sm font-medium">
         Tu correo electrónico
       </label>
@@ -118,12 +118,12 @@ function FormularioIngreso() {
         onChange={(e) => setCorreo(e.target.value)}
         placeholder="vos@ejemplo.com"
         // text-base (16px) evita que el iPhone haga zoom solo al tocar el campo.
-        className="mt-2 w-full rounded-lg border border-slate-300 px-4 py-3 text-base
-                   outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+        className="mt-2 w-full rounded-xl border-[0.5px] border-tinta-300 px-4 py-3 text-base
+                   outline-none focus:border-marca-600 focus:ring-1 focus:ring-marca-600"
       />
 
       {error && (
-        <p className="mt-3 whitespace-pre-line rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="mt-3 whitespace-pre-line rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
         </p>
       )}
@@ -131,13 +131,13 @@ function FormularioIngreso() {
       <button
         type="submit"
         disabled={estado === "enviando"}
-        className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-3 text-base font-medium
+        className="mt-4 w-full rounded-xl bg-marca-800 px-4 py-3 text-base font-medium
                    text-white disabled:opacity-60"
       >
         {estado === "enviando" ? "Mandando…" : "Mandame el enlace"}
       </button>
 
-      <p className="mt-4 text-sm text-slate-500">
+      <p className="mt-4 text-sm text-tinta-500">
         No usamos contraseñas. Te mandamos un enlace al correo y con tocarlo entrás.
       </p>
     </form>
@@ -146,15 +146,15 @@ function FormularioIngreso() {
 
 export default function PaginaIngreso() {
   return (
-    <main className="mx-auto max-w-md px-5 py-12">
-      <h1 className="text-2xl font-bold tracking-tight">Ingresar a Prestamo</h1>
-      <p className="mt-2 text-slate-600">
+    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-10 sm:px-6">
+      <h1 className="text-2xl font-semibold leading-tight">Ingresar a Prestamo</h1>
+      <p className="mt-2 text-tinta-600">
         Para publicar algo o rentar, necesitamos saber quién sos.
       </p>
 
-      <div className="mt-8">
+      <div className="mt-6">
         {/* useSearchParams necesita estar dentro de Suspense en Next.js */}
-        <Suspense fallback={<div className="h-64 rounded-xl bg-slate-50" />}>
+        <Suspense fallback={<div className="h-64 rounded-xl bg-tinta-100" />}>
           <FormularioIngreso />
         </Suspense>
       </div>

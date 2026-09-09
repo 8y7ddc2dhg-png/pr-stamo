@@ -118,17 +118,17 @@ export default function Chat({
     }).format(new Date(iso));
 
   return (
-    <div className="rounded-xl border border-slate-200">
-      <div className="border-b border-slate-200 px-4 py-3">
+    <div className="overflow-hidden rounded-xl border-[0.5px] border-tinta-200 bg-white">
+      <div className="border-b border-tinta-200 px-4 py-3">
         <h2 className="font-medium">Conversación con {nombreDelOtro}</h2>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-tinta-500">
           Solo ustedes dos pueden leer esto. Sirve para coordinar la entrega.
         </p>
       </div>
 
       <div className="max-h-96 space-y-3 overflow-y-auto px-4 py-4">
         {mensajes.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-500">
+          <p className="py-8 text-center text-sm text-tinta-500">
             Todavía no hay mensajes. Escribí el primero para coordinar dónde y a qué
             hora se encuentran.
           </p>
@@ -139,11 +139,11 @@ export default function Chat({
               <div key={m.id} className={`flex ${esMio ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                    esMio ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-900"
+                    esMio ? "bg-marca-800 text-white" : "bg-tinta-100 text-tinta-900"
                   }`}
                 >
                   <p className="whitespace-pre-line break-words text-sm">{m.texto}</p>
-                  <p className={`mt-1 text-[11px] ${esMio ? "text-slate-300" : "text-slate-500"}`}>
+                  <p className={`mt-1 text-[11px] ${esMio ? "text-marca-200" : "text-tinta-500"}`}>
                     {hora(m.creado_en)}
                   </p>
                 </div>
@@ -154,7 +154,7 @@ export default function Chat({
         <div ref={finDeLaLista} />
       </div>
 
-      <form onSubmit={enviar} className="border-t border-slate-200 p-3">
+      <form onSubmit={enviar} className="border-t border-tinta-200 p-3">
         {error && <p className="mb-2 text-sm text-red-700">{error}</p>}
         <div className="flex gap-2">
           <input
@@ -163,13 +163,13 @@ export default function Chat({
             placeholder="Escribí un mensaje…"
             maxLength={1000}
             aria-label="Mensaje"
-            className="min-w-0 flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-base
-                       outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
+            className="min-w-0 flex-1 rounded-xl border-[0.5px] border-tinta-300 px-4 py-2.5 text-base
+                       outline-none focus:border-marca-600 focus:ring-1 focus:ring-marca-600"
           />
           <button
             type="submit"
             disabled={enviando}
-            className="shrink-0 rounded-lg bg-slate-900 px-5 py-2.5 font-medium text-white disabled:opacity-50"
+            className="shrink-0 rounded-xl bg-marca-800 px-5 py-2.5 font-medium text-white disabled:opacity-50"
           >
             {enviando ? "…" : "Enviar"}
           </button>

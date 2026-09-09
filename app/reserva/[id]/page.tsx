@@ -11,14 +11,14 @@ import BotonPagar from "@/components/BotonPagar";
 export const metadata = { title: "Reserva — Prestamo" };
 
 const ESTADOS: Record<string, { texto: string; clase: string }> = {
-  solicitada:   { texto: "Esperando respuesta", clase: "bg-slate-100 text-slate-700" },
+  solicitada:   { texto: "Esperando respuesta", clase: "bg-tinta-100 text-tinta-700" },
   aceptada:     { texto: "Falta pagar",          clase: "bg-amber-100 text-amber-900" },
-  rechazada:    { texto: "Rechazada",            clase: "bg-slate-100 text-slate-500" },
+  rechazada:    { texto: "Rechazada",            clase: "bg-tinta-100 text-tinta-500" },
   pagada:       { texto: "Pagada",               clase: "bg-green-100 text-green-900" },
   entregada:    { texto: "Entregada",            clase: "bg-blue-100 text-blue-900" },
-  devuelta:     { texto: "Devuelta",             clase: "bg-slate-100 text-slate-700" },
+  devuelta:     { texto: "Devuelta",             clase: "bg-tinta-100 text-tinta-700" },
   con_problema: { texto: "Con un problema",      clase: "bg-red-100 text-red-900" },
-  cancelada:    { texto: "Cancelada",            clase: "bg-slate-100 text-slate-500" },
+  cancelada:    { texto: "Cancelada",            clase: "bg-tinta-100 text-tinta-500" },
 };
 
 export default async function PaginaReserva({ params }: { params: Promise<{ id: string }> }) {
@@ -76,17 +76,17 @@ export default async function PaginaReserva({ params }: { params: Promise<{ id: 
     .eq("reservation_id", id)
     .order("creado_en", { ascending: true });
 
-  const estado = ESTADOS[data.estado] ?? { texto: data.estado, clase: "bg-slate-100 text-slate-700" };
+  const estado = ESTADOS[data.estado] ?? { texto: data.estado, clase: "bg-tinta-100 text-tinta-700" };
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-8">
+    <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
       <Link href={soyElQueRenta ? "/mis-reservas" : "/mis-publicaciones"}
-            className="text-sm text-slate-500 hover:underline">
+            className="text-sm text-tinta-500 hover:underline">
         ← Volver
       </Link>
 
       <div className="mt-4 flex items-start gap-4">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-tinta-100">
           {portada && <Image src={portada.url} alt="" fill className="object-cover" sizes="96px" />}
         </div>
         <div className="min-w-0 flex-1">
@@ -98,7 +98,7 @@ export default async function PaginaReserva({ params }: { params: Promise<{ id: 
               {estado.texto}
             </span>
           </div>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-tinta-600">
             {formatearRango(data.inicio_en, data.fin_en)} · {data.dias}{" "}
             {data.dias === 1 ? "día" : "días"} · {item?.ciudad}
           </p>
@@ -106,23 +106,23 @@ export default async function PaginaReserva({ params }: { params: Promise<{ id: 
             {formatearQuetzales(data.precio_total_centavos)}
           </p>
           {pago?.metodo_simulado && (
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-tinta-500">
               Pagado {pago.metodo_simulado === "efectivo" ? "en efectivo" : "en línea"} · simulado
             </p>
           )}
         </div>
       </div>
 
-      <div className="mt-5 rounded-xl bg-slate-50 px-4 py-3 text-sm">
+      <div className="mt-5 rounded-xl border-[0.5px] border-tinta-200 bg-white px-4 py-3 text-sm">
         <p>
-          <span className="text-slate-600">
+          <span className="text-tinta-600">
             {soyElQueRenta ? "Le rentás a" : "Te renta"}:
           </span>{" "}
           <strong>{nombreDelOtro}</strong>
         </p>
         {otro?.telefono_whatsapp && (
           <p className="mt-1">
-            <span className="text-slate-600">WhatsApp:</span>{" "}
+            <span className="text-tinta-600">WhatsApp:</span>{" "}
             <a
               href={`https://wa.me/502${otro.telefono_whatsapp}`}
               target="_blank"

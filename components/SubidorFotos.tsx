@@ -104,10 +104,10 @@ export default function SubidorFotos({
     <div>
       <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {fotos.map((foto, indice) => (
-          <div key={foto.ruta} className="relative aspect-square overflow-hidden rounded-lg border border-slate-200">
+          <div key={foto.ruta} className="relative aspect-square overflow-hidden rounded-xl border-[0.5px] border-tinta-200">
             <Image src={foto.url} alt={`Foto ${indice + 1}`} fill className="object-cover" sizes="200px" />
             {indice === 0 && (
-              <span className="absolute left-1 top-1 rounded bg-slate-900/80 px-1.5 py-0.5 text-[11px] text-white">
+              <span className="absolute left-1 top-1 rounded bg-tinta-900/80 px-1.5 py-0.5 text-[11px] text-white">
                 Portada
               </span>
             )}
@@ -125,7 +125,7 @@ export default function SubidorFotos({
         {fotos.length < maximo && (
           <label
             className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1
-                       rounded-lg border-2 border-dashed border-slate-300 text-sm text-slate-500"
+                       rounded-lg border-[0.5px] border-dashed border-tinta-300 text-sm text-tinta-500"
           >
             <input
               type="file"
@@ -144,7 +144,7 @@ export default function SubidorFotos({
         )}
       </div>
 
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-tinta-500">
         La primera foto es la portada, la que se ve en el buscador. Hasta {maximo} fotos.
       </p>
 

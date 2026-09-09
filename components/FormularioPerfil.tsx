@@ -55,8 +55,8 @@ export default function FormularioPerfil({ perfil }: { perfil: Usuario }) {
   }
 
   const claseCampo =
-    "mt-2 w-full rounded-lg border border-slate-300 px-4 py-3 text-base outline-none " +
-    "focus:border-slate-900 focus:ring-1 focus:ring-slate-900";
+    "mt-2 w-full rounded-xl border-[0.5px] border-tinta-300 px-4 py-3 text-base outline-none " +
+    "focus:border-marca-600 focus:ring-1 focus:ring-marca-600";
 
   return (
     <form onSubmit={guardar} className="space-y-6">
@@ -71,7 +71,7 @@ export default function FormularioPerfil({ perfil }: { perfil: Usuario }) {
           placeholder="María López / Alquileres El Roble"
           className={claseCampo}
         />
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-tinta-500">
           Es lo que van a ver los demás en tus publicaciones.
         </p>
         {errores.nombre && <p className="mt-1 text-sm text-red-700">{errores.nombre}</p>}
@@ -90,7 +90,7 @@ export default function FormularioPerfil({ perfil }: { perfil: Usuario }) {
           placeholder="5512-3456"
           className={claseCampo}
         />
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-tinta-500">
           Solo se lo mostramos a la otra persona cuando una reserva ya está
           confirmada, para que coordinen la entrega. No aparece en tu perfil público.
         </p>
@@ -118,19 +118,19 @@ export default function FormularioPerfil({ perfil }: { perfil: Usuario }) {
       </div>
 
       {errores.general && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">{errores.general}</p>
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">{errores.general}</p>
       )}
 
       <button
         type="submit"
         disabled={estado === "guardando"}
-        className="w-full rounded-lg bg-slate-900 px-4 py-3 text-base font-medium text-white disabled:opacity-60 sm:w-auto sm:px-8"
+        className="w-full rounded-xl bg-marca-800 px-4 py-3 text-base font-medium text-white disabled:opacity-60 sm:w-auto sm:px-8"
       >
         {estado === "guardando" ? "Guardando…" : "Guardar"}
       </button>
 
       {estado === "guardado" && (
-        <p className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">
+        <p className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800">
           Listo, tus datos quedaron guardados.
         </p>
       )}

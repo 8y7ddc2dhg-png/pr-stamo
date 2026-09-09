@@ -27,7 +27,7 @@ export default async function PaginaMiPerfil() {
     return (
       <main className="mx-auto max-w-xl px-5 py-12">
         <h1 className="text-2xl font-bold">Algo salió mal</h1>
-        <p className="mt-2 text-slate-600">
+        <p className="mt-2 text-tinta-600">
           No encontramos tu perfil. Cerrá sesión y volvé a entrar; si sigue
           pasando, escribinos.
         </p>
@@ -38,14 +38,14 @@ export default async function PaginaMiPerfil() {
   const estaIncompleto = !perfil.nombre || !perfil.telefono_whatsapp || !perfil.ciudad;
 
   return (
-    <main className="mx-auto max-w-xl px-5 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">Mi perfil</h1>
-      <p className="mt-2 text-slate-600">
+    <main className="mx-auto max-w-xl px-4 py-6 sm:px-6 sm:py-10">
+      <h1 className="text-2xl font-semibold">Mi perfil</h1>
+      <p className="mt-2 text-tinta-600">
         Ingresaste como <strong className="break-all">{perfil.correo}</strong>.
       </p>
 
       {estaIncompleto && (
-        <p className="mt-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Completá estos datos para poder publicar algo o rentar. Es una sola vez.
         </p>
       )}

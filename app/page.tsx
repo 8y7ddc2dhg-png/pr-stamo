@@ -25,7 +25,7 @@ export default async function Portada({
 
   let consulta = supabase
     .from("listings")
-    .select("id, titulo, categoria, precio_por_dia_centavos, ciudad, listing_photos(url, orden)")
+    .select("id, titulo, categoria, precio_por_dia_centavos, ciudad, cantidad_disponible, listing_photos(url, orden)")
     .eq("activo", true)
     .order("creado_en", { ascending: false })
     .limit(60);
@@ -43,11 +43,12 @@ export default async function Portada({
   const hayFiltros = Boolean(texto || categoria || ciudad);
 
   return (
-    <main className="mx-auto max-w-4xl px-5 py-8">
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-        Rentá lo que necesitás, por los días que lo necesitás
+    <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+      <h1 className="text-[26px] font-semibold leading-tight sm:text-4xl">
+        Rentá lo que necesitás,
+        <br className="hidden sm:block" /> por los días que lo necesitás
       </h1>
-      <p className="mt-2 text-slate-600">
+      <p className="mt-2 max-w-lg text-tinta-600">
         Herramientas, mobiliario y equipo que otra gente tiene guardado.
       </p>
 
@@ -56,26 +57,29 @@ export default async function Portada({
       </div>
 
       {error ? (
-        <p className="mt-10 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+        <p className="mt-10 rounded-xl border-[0.5px] border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           No pudimos cargar el catálogo en este momento. Probá recargar la página.
         </p>
       ) : items.length === 0 ? (
-        <div className="mt-12 rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">
+        <div className="mt-10 rounded-xl border-[0.5px] border-dashed border-tinta-300 bg-white px-6 py-14 text-center">
           {hayFiltros ? (
             <>
               <p className="font-medium">No encontramos nada con esa búsqueda.</p>
-              <p className="mt-1 text-slate-600">Probá con otra palabra o quitá algún filtro.</p>
-              <Link href="/" className="mt-4 inline-block font-medium underline">
+              <p className="mt-1 text-tinta-600">Probá con otra palabra o quitá algún filtro.</p>
+              <Link
+                href="/"
+                className="mt-5 inline-block rounded-full border-[0.5px] border-tinta-300 bg-white px-5 py-2.5 text-sm font-medium hover:border-tinta-400"
+              >
                 Ver todo el catálogo
               </Link>
             </>
           ) : (
             <>
               <p className="font-medium">Todavía no hay nada publicado.</p>
-              <p className="mt-1 text-slate-600">Sé el primero en publicar algo para rentar.</p>
+              <p className="mt-1 text-tinta-600">Sé el primero en publicar algo para rentar.</p>
               <Link
                 href="/publicar"
-                className="mt-4 inline-block rounded-lg bg-slate-900 px-5 py-2.5 font-medium text-white"
+                className="mt-5 inline-block rounded-full bg-marca-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-marca-900"
               >
                 Publicar algo
               </Link>
@@ -84,10 +88,21 @@ export default async function Portada({
         </div>
       ) : (
         <>
-          <p className="mt-8 text-sm text-slate-500">
+          <p className="mt-7 text-sm text-tinta-500">
             {items.length === 1 ? "1 resultado" : `${items.length} resultados`}
           </p>
-          <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+
+          {/* auto-fit con minmax deja que la grilla decida cuántas columnas
+              caben: no hay que enumerar un tamaño de pantalla por cada corte,
+              y se adapta también a anchos raros como una ventana a medio
+              maximizar.
+
+              El mínimo baja a 155px en celular a propósito: en una pantalla de
+              375px quedan 343px útiles, y dos columnas de 180 necesitan 372.
+              Con 180 fijo, un teléfono mostraría UNA sola tarjeta por fila y
+              habría que barrer media pantalla por ítem. De tablet en adelante
+              vuelve a 180. */}
+          <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-3 sm:grid-cols-[repeat(auto-fit,minmax(180px,1fr))] sm:gap-4">
             {items.map((item) => <TarjetaItem key={item.id} item={item} />)}
           </div>
         </>

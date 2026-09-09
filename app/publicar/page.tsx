@@ -17,9 +17,9 @@ export default async function PaginaPublicar() {
   if (!perfil?.nombre || !perfil?.telefono_whatsapp) redirect("/mi-perfil");
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">Publicar algo para rentar</h1>
-      <p className="mt-2 text-slate-600">
+    <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
+      <h1 className="text-2xl font-semibold">Publicar algo para rentar</h1>
+      <p className="mt-2 text-tinta-600">
         Contá qué tenés, poné un precio por día y subí al menos una foto.
       </p>
       <div className="mt-8">

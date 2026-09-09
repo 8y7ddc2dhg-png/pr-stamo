@@ -43,30 +43,28 @@ export default async function MisPublicaciones() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-10">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold tracking-tight">Mis publicaciones</h1>
-        <Link href="/publicar" className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white">
-          Publicar
-        </Link>
-      </div>
+    <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
+      {/* Sin botón de "Publicar" acá: ya hay uno en la barra de arriba, visible
+          desde cualquier pantalla. Dos botones iguales a diez centímetros de
+          distancia hacen dudar de si hacen lo mismo. */}
+      <h1 className="text-2xl font-semibold">Mis publicaciones</h1>
 
       {reservasRecibidas.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-tinta-500">
             Reservas que te hicieron
           </h2>
-          <ul className="mt-3 divide-y divide-slate-200 rounded-xl border border-slate-200">
+          <ul className="mt-3 divide-y divide-tinta-200 rounded-xl border-[0.5px] border-tinta-200">
             {reservasRecibidas.map((r) => (
               <li key={r.id}>
                 <Link href={`/reserva/${r.id}`} className="flex items-center gap-3 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{tituloPorId.get(r.listing_id) ?? "Ítem"}</p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-tinta-500">
                       {formatearRango(r.inicio_en, r.fin_en)} · {formatearQuetzales(r.precio_total_centavos)}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700">
+                  <span className="shrink-0 rounded-full bg-tinta-100 px-2.5 py-1 text-xs text-tinta-700">
                     {ESTADOS[r.estado] ?? r.estado}
                   </span>
                 </Link>
@@ -77,32 +75,38 @@ export default async function MisPublicaciones() {
       )}
 
       {publicaciones.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">
+        <div className="mt-10 rounded-xl border-[0.5px] border-dashed border-tinta-300 px-6 py-12 text-center">
           <p className="font-medium">Todavía no publicaste nada.</p>
-          <p className="mt-1 text-slate-600">
+          <p className="mt-1 text-tinta-600">
             Publicá algo que tengas guardado y que otra gente pueda necesitar por unos días.
           </p>
+          <Link
+            href="/publicar"
+            className="mt-5 inline-block rounded-full bg-marca-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-marca-900"
+          >
+            Publicar algo
+          </Link>
         </div>
       ) : (
-        <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+        <ul className="mt-6 divide-y divide-tinta-200 overflow-hidden rounded-xl border-[0.5px] border-tinta-200 bg-white">
           {publicaciones.map((p) => {
             const portada = [...(p.listing_photos ?? [])].sort((a, b) => a.orden - b.orden)[0];
             return (
               <li key={p.id}>
-                <Link href={`/item/${p.id}`} className="flex items-center gap-4 py-4">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                <Link href={`/item/${p.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-tinta-50">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-tinta-100">
                     {portada && (
                       <Image src={portada.url} alt="" fill className="object-cover" sizes="64px" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{p.titulo}</p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-tinta-500">
                       {formatearQuetzales(p.precio_por_dia_centavos)} / día · {p.ciudad}
                     </p>
                   </div>
                   {!p.activo && (
-                    <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
+                    <span className="shrink-0 rounded-full bg-tinta-100 px-2.5 py-1 text-xs text-tinta-600">
                       Despublicado
                     </span>
                   )}

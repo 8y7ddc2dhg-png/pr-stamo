@@ -106,18 +106,18 @@ export default function SelectorFechas({
 
   if (esMio) {
     return (
-      <div className="rounded-xl border border-slate-200 p-5 text-center text-sm text-slate-600">
+      <div className="rounded-xl border-[0.5px] border-tinta-200 p-5 text-center text-sm text-tinta-600">
         Este ítem es tuyo. Acá van a aparecer las reservas que te hagan.
       </div>
     );
   }
 
   const claseCampo =
-    "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none " +
-    "focus:border-slate-900 focus:ring-1 focus:ring-slate-900";
+    "mt-1 w-full rounded-xl border-[0.5px] border-tinta-300 px-3 py-2.5 text-base outline-none " +
+    "focus:border-marca-600 focus:ring-1 focus:ring-marca-600";
 
   return (
-    <div className="rounded-xl border border-slate-200 p-5">
+    <div className="rounded-xl border-[0.5px] border-tinta-200 p-5">
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="inicio" className="block text-sm font-medium">Desde</label>
@@ -138,14 +138,14 @@ export default function SelectorFechas({
       </div>
 
       {listoParaReservar && (
-        <dl className="mt-4 space-y-1 border-t border-slate-200 pt-4 text-sm">
+        <dl className="mt-4 space-y-1 border-t border-tinta-200 pt-4 text-sm">
           {/* Repetir las fechas en palabras es la confirmación de que el campo
               sí tomó lo que la persona quiso poner. */}
-          <p className="pb-2 font-medium text-slate-900">
+          <p className="pb-2 font-medium text-tinta-900">
             Reservás {formatearRango(inicio, fin)}
           </p>
           <div className="flex justify-between">
-            <dt className="text-slate-600">
+            <dt className="text-tinta-600">
               {formatearQuetzales(precioPorDiaCentavos)} × {dias} {dias === 1 ? "día" : "días"}
             </dt>
             <dd>{formatearQuetzales(total)}</dd>
@@ -154,16 +154,16 @@ export default function SelectorFechas({
             <dt>Total</dt>
             <dd>{formatearQuetzales(total)}</dd>
           </div>
-          <p className="pt-1 text-xs text-slate-500">
+          <p className="pt-1 text-xs text-tinta-500">
             Son {dias} {dias === 1 ? "día" : "días"}: se cuentan el primero y el último.
           </p>
         </dl>
       )}
 
       {error ? (
-        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
+        <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
       ) : aviso && (inicio || fin) ? (
-        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{aviso}</p>
+        <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{aviso}</p>
       ) : null}
 
       {haySesion ? (
@@ -171,21 +171,21 @@ export default function SelectorFechas({
           type="button"
           onClick={reservar}
           disabled={enviando}
-          className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-3 font-medium text-white disabled:opacity-50"
+          className="mt-4 w-full rounded-xl bg-marca-800 px-4 py-3 font-medium text-white disabled:opacity-50"
         >
           {enviando ? "Reservando…" : "Reservar"}
         </button>
       ) : (
         <a
           href={`/ingresar?volver_a=/item/${listingId}`}
-          className="mt-4 block rounded-lg bg-slate-900 px-4 py-3 text-center font-medium text-white"
+          className="mt-4 block rounded-xl bg-marca-800 px-4 py-3 text-center font-medium text-white"
         >
           Ingresá para reservar
         </a>
       )}
 
       {diasOcupados.length > 0 && (
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-tinta-500">
           Hay {diasOcupados.length} {diasOcupados.length === 1 ? "día ocupado" : "días ocupados"} en los próximos 3 meses.
         </p>
       )}

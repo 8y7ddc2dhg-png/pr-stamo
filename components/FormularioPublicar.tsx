@@ -74,8 +74,8 @@ export default function FormularioPublicar({
   }
 
   const claseCampo =
-    "mt-2 w-full rounded-lg border border-slate-300 px-4 py-3 text-base outline-none " +
-    "focus:border-slate-900 focus:ring-1 focus:ring-slate-900";
+    "mt-2 w-full rounded-xl border-[0.5px] border-tinta-300 px-4 py-3 text-base outline-none " +
+    "focus:border-marca-600 focus:ring-1 focus:ring-marca-600";
 
   return (
     <form onSubmit={publicar} className="space-y-6">
@@ -115,14 +115,14 @@ export default function FormularioPublicar({
         <div>
           <label htmlFor="precio" className="block text-sm font-medium">Precio por día</label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 pt-1 text-slate-500">Q</span>
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 pt-1 text-tinta-500">Q</span>
             <input
               id="precio" inputMode="decimal" value={precio} onChange={(e) => setPrecio(e.target.value)}
               placeholder="75.00" className={`${claseCampo} pl-8`}
             />
           </div>
           {precioLegible && (
-            <p className="mt-1 text-sm text-slate-500">Se va a mostrar como {precioLegible} por día.</p>
+            <p className="mt-1 text-sm text-tinta-500">Se va a mostrar como {precioLegible} por día.</p>
           )}
         </div>
 
@@ -132,7 +132,7 @@ export default function FormularioPublicar({
             id="cantidad" type="number" min={1} max={999} value={cantidad}
             onChange={(e) => setCantidad(e.target.value)} className={claseCampo}
           />
-          <p className="mt-1 text-sm text-slate-500">Si tenés 20 sillas iguales, poné 20.</p>
+          <p className="mt-1 text-sm text-tinta-500">Si tenés 20 sillas iguales, poné 20.</p>
         </div>
       </div>
 
@@ -145,7 +145,7 @@ export default function FormularioPublicar({
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800">
           <p>{error}</p>
           {faltaPerfil && (
             <Link href="/mi-perfil" className="mt-1 inline-block font-medium underline">
@@ -157,7 +157,7 @@ export default function FormularioPublicar({
 
       <button
         type="submit" disabled={enviando}
-        className="w-full rounded-lg bg-slate-900 px-4 py-3 text-base font-medium text-white disabled:opacity-60"
+        className="w-full rounded-xl bg-marca-800 px-4 py-3 text-base font-medium text-white disabled:opacity-60"
       >
         {enviando ? "Publicando…" : "Publicar"}
       </button>

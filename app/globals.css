@@ -1,14 +1,48 @@
 @import "tailwindcss";
 
 /*
-  Tipografía: usamos la fuente que ya trae el sistema del usuario en vez de
-  descargar una de Google Fonts. Una fuente externa son ~100 KB extra que hay
-  que bajar antes de que el texto se vea. En una conexión móvil lenta —que es
-  como va a entrar la mayoría de nuestros usuarios— eso se nota.
+  ── Paleta y tipografía ─────────────────────────────────────────────────────
+
+  Todo el color de la app sale de acá. Definir los tonos una sola vez y
+  nombrarlos por su papel —"marca", "tinta"— y no por su color evita el
+  problema clásico de terminar con nueve grises apenas distintos regados por
+  las pantallas, y hace que cambiar la identidad sea editar este bloque.
+
+  MARCA: un verde azulado profundo. Se eligió por descarte: el azul es el
+  color por defecto de todo, y el naranja o el rojo transmiten urgencia, que
+  es lo último que quiere sentir alguien antes de prestarle su taladro a un
+  desconocido. El verde oscuro lee como algo serio y estable.
+
+  TINTA: grises con una pizca de amarillo en vez de grises puros. Sobre una
+  pantalla, el gris neutro se ve azulado y frío; estos se sienten como papel.
 */
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--fuente-cargada), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-marca-50:  #eef7f4;
+  --color-marca-100: #d6ece5;
+  --color-marca-200: #aed9cd;
+  --color-marca-300: #7cc0ae;
+  --color-marca-400: #4ba18c;
+  --color-marca-500: #2d8571;
+  --color-marca-600: #1f6b5b;
+  --color-marca-700: #1a5549;
+  --color-marca-800: #16443b;
+  --color-marca-900: #123831;
+
+  --color-tinta-50:  #faf9f7;
+  --color-tinta-100: #f4f2ef;
+  --color-tinta-200: #e7e4df;
+  --color-tinta-300: #d3cfc8;
+  --color-tinta-400: #a8a29a;
+  --color-tinta-500: #7c766e;
+  --color-tinta-600: #5c5750;
+  --color-tinta-700: #45413b;
+  --color-tinta-800: #2e2b27;
+  --color-tinta-900: #1c1a17;
+
+  --radius-tarjeta: 0.875rem;
 }
 
 html {
@@ -17,4 +51,21 @@ html {
 
 body {
   font-family: var(--font-sans);
+  /* Las cifras de precio quedan de ancho parejo, así una columna de precios
+     no baila cuando cambian los dígitos. */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/*
+  Todo lo que se pueda tocar recibe el mismo aro al enfocarse con el teclado.
+  No es decoración: sin esto, quien navega con Tab no sabe dónde está parado.
+*/
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-marca-600);
+  outline-offset: 2px;
+}
+
+/* Los títulos se ven mejor un poco más juntos de lo que vienen de fábrica. */
+:where(h1, h2, h3) {
+  letter-spacing: -0.02em;
 }

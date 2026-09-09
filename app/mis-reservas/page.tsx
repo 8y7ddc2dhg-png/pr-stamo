@@ -10,14 +10,14 @@ export const metadata = { title: "Mis reservas — Prestamo" };
 
 /** Cómo se le muestra cada estado a una persona, no a un programador. */
 const ESTADOS: Record<string, { texto: string; clase: string }> = {
-  solicitada:   { texto: "Esperando respuesta", clase: "bg-slate-100 text-slate-700" },
+  solicitada:   { texto: "Esperando respuesta", clase: "bg-tinta-100 text-tinta-700" },
   aceptada:     { texto: "Falta pagar",          clase: "bg-amber-100 text-amber-900" },
-  rechazada:    { texto: "Rechazada",            clase: "bg-slate-100 text-slate-500" },
+  rechazada:    { texto: "Rechazada",            clase: "bg-tinta-100 text-tinta-500" },
   pagada:       { texto: "Pagada",               clase: "bg-green-100 text-green-900" },
   entregada:    { texto: "En tu poder",          clase: "bg-blue-100 text-blue-900" },
-  devuelta:     { texto: "Devuelta",             clase: "bg-slate-100 text-slate-700" },
+  devuelta:     { texto: "Devuelta",             clase: "bg-tinta-100 text-tinta-700" },
   con_problema: { texto: "Con un problema",      clase: "bg-red-100 text-red-900" },
-  cancelada:    { texto: "Cancelada",            clase: "bg-slate-100 text-slate-500" },
+  cancelada:    { texto: "Cancelada",            clase: "bg-tinta-100 text-tinta-500" },
 };
 
 export default async function MisReservas({
@@ -41,19 +41,19 @@ export default async function MisReservas({
   const reservas = data ?? [];
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">Mis reservas</h1>
+    <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
+      <h1 className="text-2xl font-semibold">Mis reservas</h1>
 
       {nueva && (
-        <p className="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-900">
+        <p className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-900">
           Tu reserva quedó hecha. Ahora podés pagarla.
         </p>
       )}
 
       {reservas.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">
+        <div className="mt-10 rounded-xl border-[0.5px] border-dashed border-tinta-300 px-6 py-12 text-center">
           <p className="font-medium">Todavía no reservaste nada.</p>
-          <Link href="/" className="mt-4 inline-block rounded-lg bg-slate-900 px-5 py-2.5 font-medium text-white">
+          <Link href="/" className="mt-4 inline-block rounded-xl bg-marca-800 px-5 py-2.5 font-medium text-white">
             Ver el catálogo
           </Link>
         </div>
@@ -65,12 +65,12 @@ export default async function MisReservas({
             const item = Array.isArray(r.listings) ? r.listings[0] : r.listings;
             const pago = Array.isArray(r.payments) ? r.payments[0] : r.payments;
             const portada = [...(item?.listing_photos ?? [])].sort((a, b) => a.orden - b.orden)[0];
-            const estado = ESTADOS[r.estado] ?? { texto: r.estado, clase: "bg-slate-100 text-slate-700" };
+            const estado = ESTADOS[r.estado] ?? { texto: r.estado, clase: "bg-tinta-100 text-tinta-700" };
 
             return (
-              <li key={r.id} className="rounded-xl border border-slate-200 p-4">
+              <li key={r.id} className="rounded-xl border-[0.5px] border-tinta-200 bg-white p-4">
                 <div className="flex items-start gap-4">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-tinta-100">
                     {portada && <Image src={portada.url} alt="" fill className="object-cover" sizes="80px" />}
                   </div>
 
@@ -84,13 +84,13 @@ export default async function MisReservas({
                       </span>
                     </div>
 
-                    <p className="mt-1 text-sm text-slate-600">
+                    <p className="mt-1 text-sm text-tinta-600">
                       {formatearRango(r.inicio_en, r.fin_en)} · {r.dias} {r.dias === 1 ? "día" : "días"}
                     </p>
                     <p className="mt-0.5 font-semibold">{formatearQuetzales(r.precio_total_centavos)}</p>
 
                     {pago?.metodo_simulado && (
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-tinta-500">
                         Pagado {pago.metodo_simulado === "efectivo" ? "en efectivo" : "en línea"} · simulado
                       </p>
                     )}
@@ -100,7 +100,7 @@ export default async function MisReservas({
                 <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
                   <Link
                     href={`/reserva/${r.id}`}
-                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:border-slate-900"
+                    className="rounded-full border-[0.5px] border-tinta-300 px-4 py-2 text-sm font-medium hover:border-tinta-400"
                   >
                     Ver y conversar
                   </Link>
