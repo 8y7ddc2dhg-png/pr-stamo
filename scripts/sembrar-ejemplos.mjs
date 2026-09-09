@@ -50,6 +50,41 @@ function buscarFotoReal(slug) {
  *
  * `sips` viene incluido en macOS, así que no hay que instalar nada.
  */
+/**
+ * Baja una imagen y la deja en un archivo temporal.
+ *
+ * POR QUÉ SE DESCARGA Y NO SE GUARDA LA URL: loremflickr devuelve una foto
+ * DISTINTA en cada carga. Si la publicación apuntara a esa dirección, el
+ * catálogo cambiaría de fotos solo, y si el servicio se cayera durante una
+ * presentación quedarían todos los recuadros vacíos. Bajándola una vez y
+ * subiéndola a Storage, la foto queda fija y bajo nuestro control.
+ *
+ * Devuelve null si falla: el sembrador entonces cae al relleno de color, que
+ * es feo pero nunca deja la publicación sin imagen.
+ */
+async function bajarImagen(url, intentos = 3) {
+  for (let intento = 1; intento <= intentos; intento++) {
+    try {
+      const respuesta = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(20000) });
+      if (!respuesta.ok) throw new Error(`respondió ${respuesta.status}`);
+      const bytes = Buffer.from(await respuesta.arrayBuffer());
+      // Una imagen de verdad pesa más que esto; menos suele ser una página de
+      // error disfrazada de respuesta correcta.
+      if (bytes.length < 3000) throw new Error(`pesa ${bytes.length} bytes`);
+      const destino = path.join(os.tmpdir(), `prestamo-baja-${crypto.randomUUID()}`);
+      fs.writeFileSync(destino, bytes);
+      return destino;
+    } catch (fallo) {
+      if (intento === intentos) {
+        console.log(`    no se pudo bajar (${fallo.message})`);
+        return null;
+      }
+      await new Promise((r) => setTimeout(r, 800 * intento));
+    }
+  }
+  return null;
+}
+
 function achicarConSips(rutaOriginal) {
   const destino = path.join(os.tmpdir(), `prestamo-${crypto.randomUUID()}.jpg`);
   try {
@@ -192,35 +227,35 @@ const ITEMS = [
     descripcion: "Dron DJI Mini con cámara 4K, tres baterías, control remoto y estuche rígido. Pesa menos de 250 gramos. Se entrega con las hélices de repuesto." },
 
   // ── 15 artículos agregados ──────────────────────────────────────────────
-  { cuenta: 2, slug: "campana4", titulo: "Tienda de campaña para 4 personas", categoria: "mobiliario_eventos", precio: "90", ciudad: "Villa Nueva", cantidad: 2,
+  { cuenta: 2, slug: "campana4", imagenUrl: "https://loremflickr.com/640/480/camping,tent", titulo: "Tienda de campaña para 4 personas", categoria: "mobiliario_eventos", precio: "90", ciudad: "Villa Nueva", cantidad: 2,
     descripcion: "Tienda de campaña para 4 personas, con doble techo impermeable y mosquitero. Se arma en diez minutos entre dos. Incluye estacas, vientos y bolsa de carga." },
-  { cuenta: 2, slug: "proyector-portatil", titulo: "Proyector portátil HD", categoria: "electronicos", precio: "160", ciudad: "Villa Nueva", cantidad: 2,
+  { cuenta: 2, slug: "proyector-portatil", imagenUrl: "https://loremflickr.com/640/480/projector", titulo: "Proyector portátil HD", categoria: "electronicos", precio: "160", ciudad: "Villa Nueva", cantidad: 2,
     descripcion: "Proyector portátil HD, liviano y con parlante integrado. Entradas HDMI y USB. Ideal para presentaciones o para ver una película en el patio." },
-  { cuenta: 2, slug: "pingpong", titulo: "Mesa de ping pong plegable", categoria: "deportes_aire_libre", precio: "250", ciudad: "Villa Nueva", cantidad: 1,
+  { cuenta: 2, slug: "pingpong", imagenUrl: "https://loremflickr.com/640/480/pingpong,table", titulo: "Mesa de ping pong plegable", categoria: "deportes_aire_libre", precio: "250", ciudad: "Villa Nueva", cantidad: 1,
     descripcion: "Mesa de ping pong tamaño oficial, plegable y con ruedas para moverla fácil. Incluye red, dos raquetas y tres pelotas." },
-  { cuenta: 0, slug: "bici29", titulo: "Bicicleta de montaña rodado 29 (aro grande)", categoria: "deportes_aire_libre", precio: "65", ciudad: "Ciudad de Guatemala", cantidad: 3,
+  { cuenta: 0, slug: "bici29", imagenUrl: "https://loremflickr.com/640/480/mountainbike", titulo: "Bicicleta de montaña rodado 29 (aro grande)", categoria: "deportes_aire_libre", precio: "65", ciudad: "Ciudad de Guatemala", cantidad: 3,
     descripcion: "Bicicleta de montaña rodado 29, cuadro de aluminio y frenos de disco hidráulicos. Recién servicieada. Se presta con casco y candado." },
-  { cuenta: 0, slug: "partybox", titulo: "Bocina de fiesta con luces", categoria: "mobiliario_eventos", precio: "300", ciudad: "Ciudad de Guatemala", cantidad: 2,
+  { cuenta: 0, slug: "partybox", imagenUrl: "https://loremflickr.com/640/480/speaker,party", titulo: "Bocina de fiesta con luces", categoria: "mobiliario_eventos", precio: "300", ciudad: "Ciudad de Guatemala", cantidad: 2,
     descripcion: "Bocina grande de fiesta con luces que siguen la música, bluetooth y entrada para micrófono. Batería para unas seis horas. Incluye un micrófono." },
-  { cuenta: 1, slug: "taladro-inalambrico", titulo: "Taladro inalámbrico con maletín", categoria: "herramientas", precio: "70", ciudad: "Mixco", cantidad: 2,
+  { cuenta: 1, slug: "taladro-inalambrico", imagenUrl: "https://loremflickr.com/640/480/drill,tool", titulo: "Taladro inalámbrico con maletín", categoria: "herramientas", precio: "70", ciudad: "Mixco", cantidad: 2,
     descripcion: "Taladro atornillador inalámbrico de 20V con dos baterías, cargador y maletín con juego de brocas y puntas. Liviano, para trabajos de casa." },
-  { cuenta: 1, slug: "traje-hombre", titulo: "Traje formal de hombre", categoria: "ropa", precio: "275", ciudad: "Mixco", cantidad: 1,
+  { cuenta: 1, slug: "traje-hombre", imagenUrl: "https://loremflickr.com/640/480/suit,menswear", titulo: "Traje formal de hombre", categoria: "ropa", precio: "275", ciudad: "Mixco", cantidad: 1,
     descripcion: "Traje formal de dos piezas en azul marino, talla 38. Incluye camisa blanca y corbata. Recién salido de tintorería, se entrega en funda." },
-  { cuenta: 2, slug: "switch", titulo: "Consola Nintendo Switch con mandos", categoria: "electronicos", precio: "175", ciudad: "Villa Nueva", cantidad: 2,
+  { cuenta: 2, slug: "switch", imagenUrl: "https://loremflickr.com/640/480/nintendoswitch", titulo: "Consola Nintendo Switch con mandos", categoria: "electronicos", precio: "175", ciudad: "Villa Nueva", cantidad: 2,
     descripcion: "Nintendo Switch con dos pares de mandos Joy-Con, base para televisor y cuatro juegos instalados. Perfecta para un fin de semana en familia." },
-  { cuenta: 0, slug: "humo", titulo: "Máquina de humo", categoria: "mobiliario_eventos", precio: "140", ciudad: "Ciudad de Guatemala", cantidad: 2,
+  { cuenta: 0, slug: "humo", imagenUrl: "https://loremflickr.com/640/480/fogmachine", titulo: "Máquina de humo", categoria: "mobiliario_eventos", precio: "140", ciudad: "Ciudad de Guatemala", cantidad: 2,
     descripcion: "Máquina de humo de 1500W con control remoto. Se entrega con un litro de líquido, suficiente para varias horas de fiesta." },
-  { cuenta: 2, slug: "silla-gamer", titulo: "Silla gamer ergonómica", categoria: "electronicos", precio: "80", ciudad: "Villa Nueva", cantidad: 2,
+  { cuenta: 2, slug: "silla-gamer", imagenUrl: "https://loremflickr.com/640/480/gamingchair", titulo: "Silla gamer ergonómica", categoria: "electronicos", precio: "80", ciudad: "Villa Nueva", cantidad: 2,
     descripcion: "Silla gamer reclinable con soporte lumbar y para el cuello, apoyabrazos ajustables y ruedas silenciosas. Aguanta hasta 120 kilos." },
-  { cuenta: 0, slug: "mesa-plegable", titulo: "Mesa plegable rectangular blanca", categoria: "mobiliario_eventos", precio: "35", ciudad: "Ciudad de Guatemala", cantidad: 12,
+  { cuenta: 0, slug: "mesa-plegable", imagenUrl: "https://loremflickr.com/640/480/foldingtable", titulo: "Mesa plegable rectangular blanca", categoria: "mobiliario_eventos", precio: "35", ciudad: "Ciudad de Guatemala", cantidad: 12,
     descripcion: "Mesa plegable rectangular de 1.80 metros, blanca, de plástico reforzado. Entran ocho personas cómodas. El precio es por mesa por día." },
-  { cuenta: 1, slug: "disfraz", titulo: "Disfraz de superhéroe adulto", categoria: "ropa", precio: "150", ciudad: "Mixco", cantidad: 2,
+  { cuenta: 1, slug: "disfraz", imagenUrl: "https://loremflickr.com/640/480/superherocostume", titulo: "Disfraz de superhéroe adulto", categoria: "ropa", precio: "150", ciudad: "Mixco", cantidad: 2,
     descripcion: "Disfraz de superhéroe para adulto, talla M y L, con capa, antifaz y guantes. Limpio y en buen estado. Ideal para cumpleaños infantiles." },
-  { cuenta: 1, slug: "generador", titulo: "Generador eléctrico portátil", categoria: "herramientas", precio: "325", ciudad: "Mixco", cantidad: 1,
+  { cuenta: 1, slug: "generador", imagenUrl: "https://loremflickr.com/640/480/generator", titulo: "Generador eléctrico portátil", categoria: "herramientas", precio: "325", ciudad: "Mixco", cantidad: 1,
     descripcion: "Generador de 2000W a gasolina, silencioso y con ruedas. Aguanta luces, bocinas y un refrigerador pequeño. Se entrega con el tanque lleno." },
-  { cuenta: 2, slug: "patines", titulo: "Patines en línea para adulto", categoria: "deportes_aire_libre", precio: "55", ciudad: "Villa Nueva", cantidad: 3,
+  { cuenta: 2, slug: "patines", imagenUrl: "https://loremflickr.com/640/480/inlineskates", titulo: "Patines en línea para adulto", categoria: "deportes_aire_libre", precio: "55", ciudad: "Villa Nueva", cantidad: 3,
     descripcion: "Patines en línea ajustables, tallas 38 a 42. Se prestan con casco, coderas y rodilleras. Ruedas en buen estado." },
-  { cuenta: 0, slug: "dron-camara", titulo: "Dron con cámara para grabar", categoria: "electronicos", precio: "380", ciudad: "Ciudad de Guatemala", cantidad: 1,
+  { cuenta: 0, slug: "dron-camara", imagenUrl: "https://loremflickr.com/640/480/drone,camera", titulo: "Dron con cámara para grabar", categoria: "electronicos", precio: "380", ciudad: "Ciudad de Guatemala", cantidad: 1,
     descripcion: "Dron con cámara 4K y estabilizador, tres baterías y control remoto con soporte para celular. Se entrega con hélices de repuesto y estuche." },
 ];
 
@@ -252,6 +287,7 @@ async function sembrar() {
   }
 
   let conFotoReal = 0, conRelleno = 0;
+  const quedaronConRelleno = [];
 
   for (const item of ITEMS) {
     const usuarioId = ids[item.cuenta];
@@ -267,8 +303,16 @@ async function sembrar() {
     }).select("id").single();
     if (error) throw new Error(`No se pudo publicar "${item.titulo}": ${error.message}`);
 
-    const fotoReal = buscarFotoReal(item.slug);
-    const bytesReales = fotoReal ? achicarConSips(fotoReal) : null;
+    // Orden de preferencia: foto que ya tenés en fotos-demo/, luego la
+    // descarga, y como último recurso el relleno de color.
+    let origen = buscarFotoReal(item.slug);
+    let temporal = null;
+    if (!origen && item.imagenUrl) {
+      temporal = await bajarImagen(item.imagenUrl);
+      origen = temporal;
+    }
+    const bytesReales = origen ? achicarConSips(origen) : null;
+    if (temporal) { try { fs.unlinkSync(temporal); } catch {} }
     const color = COLOR_POR_CATEGORIA[item.categoria];
 
     if (bytesReales) {
@@ -281,7 +325,8 @@ async function sembrar() {
         listing_id: publicacion.id, url: publica.publicUrl, orden: 0,
       });
       conFotoReal++;
-      console.log(`  Publicado: ${item.titulo}  [foto real, ${(bytesReales.length / 1024).toFixed(0)} KB]`);
+      const procedencia = temporal ? "descargada" : "fotos-demo";
+      console.log(`  Publicado: ${item.titulo}  [${procedencia}, ${(bytesReales.length / 1024).toFixed(0)} KB]`);
     } else {
       for (let orden = 0; orden < 2; orden++) {
         const png = generarPng(1200, 900, color.map((v) => Math.max(0, v - orden * 22)));
@@ -295,7 +340,8 @@ async function sembrar() {
         });
       }
       conRelleno++;
-      console.log(`  Publicado: ${item.titulo}  [relleno de color — falta fotos-demo/${item.slug}.jpg]`);
+      quedaronConRelleno.push(item.slug);
+      console.log(`  Publicado: ${item.titulo}  [relleno de color]`);
     }
   }
 
@@ -315,10 +361,13 @@ async function sembrar() {
   const sinFoto = (visibles ?? []).filter((v) => (v.listing_photos?.length ?? 0) === 0);
   console.log(`  ${visibles.length} ítems visibles para alguien sin cuenta.`);
   console.log(`  ${conFotoReal} con foto real, ${conRelleno} con relleno de color.`);
-  if (conRelleno > 0) {
-    const faltantes = ITEMS.filter((i) => !buscarFotoReal(i.slug)).map((i) => i.slug + ".jpg");
-    console.log(`\n  Para mejorar la demo, poné estas fotos en fotos-demo/ y volvé a correr:`);
-    console.log(`  ${faltantes.join(", ")}`);
+  // Solo se listan los que DE VERDAD quedaron con relleno. Antes se listaban
+  // todos los que no tenían archivo local, aunque su foto se hubiera bajado
+  // bien, y eso hacía parecer que faltaban quince cuando faltaba una.
+  if (quedaronConRelleno.length > 0) {
+    console.log(`\n  Quedaron con relleno de color: ${quedaronConRelleno.join(", ")}`);
+    console.log(`  Volvé a correr "npm run sembrar" para reintentar la descarga,`);
+    console.log(`  o poné la foto en fotos-demo/<nombre>.jpg para fijarla.`);
   }
   console.log(`  ${sinFoto.length} de ellos sin foto (deberían ser 0).`);
   if (visibles.length !== ITEMS.length || sinFoto.length > 0) process.exit(1);
