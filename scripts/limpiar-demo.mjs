@@ -7,7 +7,11 @@
  * desaparecer una operación borrando un usuario.
  *
  * La consecuencia práctica es que hay que desarmar de adentro hacia afuera:
- *   pagos → reservas → fotos → cuenta (que sí arrastra sus publicaciones)
+ *   pagos → reservas → pedidos → fotos → cuenta (que arrastra sus publicaciones)
+ *
+ * El orden no es caprichoso: cada paso quita una referencia que impide el
+ * siguiente. Las reservas apuntan a los pedidos, así que los pedidos no se
+ * pueden borrar antes que ellas.
  *
  * Si se intenta borrar la cuenta primero, Supabase responde "Database error
  * deleting user" y no dice más. Este archivo existe para que eso no vuelva
@@ -20,7 +24,7 @@ export async function borrarUsuariosDemo(admin, dominio) {
 
   const demos = (lista?.users ?? []).filter((u) => u.email?.endsWith(`@${dominio}`));
   const ids = demos.map((u) => u.id);
-  if (ids.length === 0) return { cuentas: 0, reservas: 0, pagos: 0, fallos: [] };
+  if (ids.length === 0) return { cuentas: 0, reservas: 0, pagos: 0, pedidos: 0, fallos: [] };
 
   // Las publicaciones de estas cuentas: sus reservas también hay que sacarlas,
   // aunque quien reservó sea otra persona.
@@ -46,7 +50,19 @@ export async function borrarUsuariosDemo(admin, dominio) {
     if (errRes) throw new Error(`No se pudieron borrar las reservas: ${errRes.message}`);
   }
 
-  // 3. Fotos en el almacenamiento.
+  // 3. Pedidos. Van DESPUÉS de las reservas, porque cada reserva apunta a su
+  //    pedido y esa referencia impide borrarlo antes.
+  let pedidos = 0;
+  const { data: pedidosPropios } = await admin
+    .from("pedidos").select("id").or(`renter_id.in.(${ids.join(",")}),publicador_id.in.(${ids.join(",")})`);
+  const idsPedidos = (pedidosPropios ?? []).map((p) => p.id);
+  if (idsPedidos.length > 0) {
+    const { error: errPed } = await admin.from("pedidos").delete().in("id", idsPedidos);
+    if (errPed) throw new Error(`No se pudieron borrar los pedidos: ${errPed.message}`);
+    pedidos = idsPedidos.length;
+  }
+
+  // 4. Fotos en el almacenamiento.
   for (const id of ids) {
     const { data: archivos } = await admin.storage.from("fotos-items").list(id);
     if (archivos?.length) {
@@ -54,12 +70,12 @@ export async function borrarUsuariosDemo(admin, dominio) {
     }
   }
 
-  // 4. Recién ahora las cuentas. Las publicaciones se van solas (on delete cascade).
+  // 5. Recién ahora las cuentas. Las publicaciones se van solas (on delete cascade).
   const fallos = [];
   for (const u of demos) {
     const { error: errBorrar } = await admin.auth.admin.deleteUser(u.id);
     if (errBorrar) fallos.push(`${u.email}: ${errBorrar.message}`);
   }
 
-  return { cuentas: demos.length - fallos.length, reservas: reservas.length, pagos, fallos };
+  return { cuentas: demos.length - fallos.length, reservas: reservas.length, pagos, pedidos, fallos };
 }

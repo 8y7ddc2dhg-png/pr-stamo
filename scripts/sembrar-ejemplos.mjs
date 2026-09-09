@@ -133,6 +133,7 @@ const COLOR_POR_CATEGORIA = {
 const CUENTAS = [
   { correo: `roble@${DOMINIO}`, nombre: "Alquileres El Roble", telefono: "55112233", ciudad: "Ciudad de Guatemala" },
   { correo: `marta@${DOMINIO}`, nombre: "Marta Xiloj",         telefono: "44556677", ciudad: "Mixco" },
+  { correo: `kevin@${DOMINIO}`, nombre: "Kevin Batz",           telefono: "31224455", ciudad: "Villa Nueva" },
 ];
 
 const ITEMS = [
@@ -189,12 +190,44 @@ const ITEMS = [
     descripcion: "Cámara réflex Canon EOS con lente 18-55mm, dos baterías, cargador, memoria de 64GB y bolso. Buena para un evento o un viaje." },
   { cuenta: 1, slug: "dron", titulo: "Dron DJI Mini con estuche", categoria: "electronicos", precio: "350", ciudad: "Ciudad de Guatemala", cantidad: 1,
     descripcion: "Dron DJI Mini con cámara 4K, tres baterías, control remoto y estuche rígido. Pesa menos de 250 gramos. Se entrega con las hélices de repuesto." },
+
+  // ── 15 artículos agregados ──────────────────────────────────────────────
+  { cuenta: 2, slug: "campana4", titulo: "Tienda de campaña para 4 personas", categoria: "mobiliario_eventos", precio: "90", ciudad: "Villa Nueva", cantidad: 2,
+    descripcion: "Tienda de campaña para 4 personas, con doble techo impermeable y mosquitero. Se arma en diez minutos entre dos. Incluye estacas, vientos y bolsa de carga." },
+  { cuenta: 2, slug: "proyector-portatil", titulo: "Proyector portátil HD", categoria: "electronicos", precio: "160", ciudad: "Villa Nueva", cantidad: 2,
+    descripcion: "Proyector portátil HD, liviano y con parlante integrado. Entradas HDMI y USB. Ideal para presentaciones o para ver una película en el patio." },
+  { cuenta: 2, slug: "pingpong", titulo: "Mesa de ping pong plegable", categoria: "deportes_aire_libre", precio: "250", ciudad: "Villa Nueva", cantidad: 1,
+    descripcion: "Mesa de ping pong tamaño oficial, plegable y con ruedas para moverla fácil. Incluye red, dos raquetas y tres pelotas." },
+  { cuenta: 0, slug: "bici29", titulo: "Bicicleta de montaña rodado 29 (aro grande)", categoria: "deportes_aire_libre", precio: "65", ciudad: "Ciudad de Guatemala", cantidad: 3,
+    descripcion: "Bicicleta de montaña rodado 29, cuadro de aluminio y frenos de disco hidráulicos. Recién servicieada. Se presta con casco y candado." },
+  { cuenta: 0, slug: "partybox", titulo: "Bocina de fiesta con luces", categoria: "mobiliario_eventos", precio: "300", ciudad: "Ciudad de Guatemala", cantidad: 2,
+    descripcion: "Bocina grande de fiesta con luces que siguen la música, bluetooth y entrada para micrófono. Batería para unas seis horas. Incluye un micrófono." },
+  { cuenta: 1, slug: "taladro-inalambrico", titulo: "Taladro inalámbrico con maletín", categoria: "herramientas", precio: "70", ciudad: "Mixco", cantidad: 2,
+    descripcion: "Taladro atornillador inalámbrico de 20V con dos baterías, cargador y maletín con juego de brocas y puntas. Liviano, para trabajos de casa." },
+  { cuenta: 1, slug: "traje-hombre", titulo: "Traje formal de hombre", categoria: "ropa", precio: "275", ciudad: "Mixco", cantidad: 1,
+    descripcion: "Traje formal de dos piezas en azul marino, talla 38. Incluye camisa blanca y corbata. Recién salido de tintorería, se entrega en funda." },
+  { cuenta: 2, slug: "switch", titulo: "Consola Nintendo Switch con mandos", categoria: "electronicos", precio: "175", ciudad: "Villa Nueva", cantidad: 2,
+    descripcion: "Nintendo Switch con dos pares de mandos Joy-Con, base para televisor y cuatro juegos instalados. Perfecta para un fin de semana en familia." },
+  { cuenta: 0, slug: "humo", titulo: "Máquina de humo", categoria: "mobiliario_eventos", precio: "140", ciudad: "Ciudad de Guatemala", cantidad: 2,
+    descripcion: "Máquina de humo de 1500W con control remoto. Se entrega con un litro de líquido, suficiente para varias horas de fiesta." },
+  { cuenta: 2, slug: "silla-gamer", titulo: "Silla gamer ergonómica", categoria: "electronicos", precio: "80", ciudad: "Villa Nueva", cantidad: 2,
+    descripcion: "Silla gamer reclinable con soporte lumbar y para el cuello, apoyabrazos ajustables y ruedas silenciosas. Aguanta hasta 120 kilos." },
+  { cuenta: 0, slug: "mesa-plegable", titulo: "Mesa plegable rectangular blanca", categoria: "mobiliario_eventos", precio: "35", ciudad: "Ciudad de Guatemala", cantidad: 12,
+    descripcion: "Mesa plegable rectangular de 1.80 metros, blanca, de plástico reforzado. Entran ocho personas cómodas. El precio es por mesa por día." },
+  { cuenta: 1, slug: "disfraz", titulo: "Disfraz de superhéroe adulto", categoria: "ropa", precio: "150", ciudad: "Mixco", cantidad: 2,
+    descripcion: "Disfraz de superhéroe para adulto, talla M y L, con capa, antifaz y guantes. Limpio y en buen estado. Ideal para cumpleaños infantiles." },
+  { cuenta: 1, slug: "generador", titulo: "Generador eléctrico portátil", categoria: "herramientas", precio: "325", ciudad: "Mixco", cantidad: 1,
+    descripcion: "Generador de 2000W a gasolina, silencioso y con ruedas. Aguanta luces, bocinas y un refrigerador pequeño. Se entrega con el tanque lleno." },
+  { cuenta: 2, slug: "patines", titulo: "Patines en línea para adulto", categoria: "deportes_aire_libre", precio: "55", ciudad: "Villa Nueva", cantidad: 3,
+    descripcion: "Patines en línea ajustables, tallas 38 a 42. Se prestan con casco, coderas y rodilleras. Ruedas en buen estado." },
+  { cuenta: 0, slug: "dron-camara", titulo: "Dron con cámara para grabar", categoria: "electronicos", precio: "380", ciudad: "Ciudad de Guatemala", cantidad: 1,
+    descripcion: "Dron con cámara 4K y estabilizador, tres baterías y control remoto con soporte para celular. Se entrega con hélices de repuesto y estuche." },
 ];
 
 // ---------- limpieza ----------
 async function borrarTodoLoSembrado() {
   const r = await borrarUsuariosDemo(admin, DOMINIO);
-  console.log(`  Borrados: ${r.cuentas} cuentas, ${r.reservas} reservas, ${r.pagos} pagos.`);
+  console.log(`  Borrados: ${r.cuentas} cuentas, ${r.pedidos} pedidos, ${r.reservas} reservas, ${r.pagos} pagos.`);
   if (r.fallos.length > 0) {
     console.log("  NO se pudieron borrar:");
     for (const f of r.fallos) console.log(`    ${f}`);
