@@ -10,7 +10,7 @@ import { useCarrito, useHidratado } from "@/lib/useCarrito";
 import { formatearQuetzales } from "@/lib/dinero";
 import { formatearRango } from "@/lib/fechas";
 
-export default function VistaCarrito() {
+export default function VistaCarrito({ haySesion }: { haySesion: boolean }) {
   const lineas = useCarrito();
   // El carrito vive en el navegador, así que el HTML del servidor siempre lo ve
   // vacío. Sin esta bandera, la pantalla mostraría "tu carrito está vacío" por
@@ -130,11 +130,22 @@ export default function VistaCarrito() {
             </p>
           )}
 
+          {/* Sin sesión, el botón dice a dónde va de verdad. "Continuar" a secas
+              y un rebote a la pantalla de ingreso se sienten como un error;
+              anunciarlo lo vuelve un paso esperado. Crear la cuenta e ingresar
+              son lo mismo: el enlace al correo hace las dos cosas. */}
+          {!haySesion && (
+            <p className="mt-3 rounded-xl bg-tinta-100 px-3 py-2 text-xs text-tinta-600">
+              Para confirmar vas a ingresar con tu correo. Si no tenés cuenta, se crea
+              en ese mismo paso. Tu carrito se conserva.
+            </p>
+          )}
+
           <Link
             href="/checkout"
             className="mt-4 block rounded-xl bg-marca-800 px-4 py-3 text-center font-medium text-white hover:bg-marca-900"
           >
-            Continuar
+            {haySesion ? "Continuar" : "Ingresar y continuar"}
           </Link>
 
           <Link href="/" className="mt-2 block text-center text-sm text-tinta-500 hover:text-tinta-900">

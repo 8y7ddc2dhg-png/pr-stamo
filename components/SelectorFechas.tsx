@@ -261,8 +261,8 @@ export default function SelectorFechas({
         <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{aviso}</p>
       ) : null}
 
-      {haySesion ? (
-        <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2">
+        {haySesion ? (
           <button
             type="button"
             onClick={reservar}
@@ -271,34 +271,36 @@ export default function SelectorFechas({
           >
             {enviando ? "Reservando…" : "Reservar"}
           </button>
-
-          {/* Dos caminos que conviven: reservar de una, o juntar varias cosas y
-              pagarlas de una sola vez. El de reserva directa va primero porque
-              es el más corto. */}
-          <button
-            type="button"
-            onClick={agregarAlCarritoDesdeAqui}
-            className="w-full rounded-xl border-[0.5px] border-tinta-300 bg-white px-4 py-3
-                       font-medium transition-colors hover:border-tinta-400"
+        ) : (
+          <a
+            href={`/ingresar?volver_a=/item/${listingId}`}
+            className="block rounded-xl bg-marca-800 px-4 py-3 text-center font-medium text-white"
           >
-            Agregar al carrito
-          </button>
+            Ingresá para reservar
+          </a>
+        )}
 
-          {avisoCarrito && (
-            <p className="rounded-xl bg-marca-50 px-3 py-2 text-sm text-marca-800">
-              {avisoCarrito}{" "}
-              <a href="/carrito" className="font-medium underline">Ver carrito</a>
-            </p>
-          )}
-        </div>
-      ) : (
-        <a
-          href={`/ingresar?volver_a=/item/${listingId}`}
-          className="mt-4 block rounded-xl bg-marca-800 px-4 py-3 text-center font-medium text-white"
+        {/* El carrito NO pide sesión, a propósito. Vive en el navegador de cada
+            quien, y juntar cosas mientras uno todavía está mirando no compromete
+            nada. La sesión se pide recién al confirmar, en /checkout, que es
+            donde se crea algo de verdad. Obligar a ingresar antes de poder
+            siquiera armar el carrito espantaría justo a quien está decidiendo. */}
+        <button
+          type="button"
+          onClick={agregarAlCarritoDesdeAqui}
+          className="w-full rounded-xl border-[0.5px] border-tinta-300 bg-white px-4 py-3
+                     font-medium transition-colors hover:border-tinta-400"
         >
-          Ingresá para reservar
-        </a>
-      )}
+          Agregar al carrito
+        </button>
+
+        {avisoCarrito && (
+          <p className="rounded-xl bg-marca-50 px-3 py-2 text-sm text-marca-800">
+            {avisoCarrito}{" "}
+            <a href="/carrito" className="font-medium underline">Ver carrito</a>
+          </p>
+        )}
+      </div>
 
       {diasOcupados.length > 0 && (
         <p className="mt-3 text-xs text-tinta-500">
