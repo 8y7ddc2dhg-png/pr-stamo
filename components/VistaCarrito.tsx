@@ -136,8 +136,8 @@ export default function VistaCarrito({ haySesion }: { haySesion: boolean }) {
               son lo mismo: el enlace al correo hace las dos cosas. */}
           {!haySesion && (
             <p className="mt-3 rounded-xl bg-tinta-100 px-3 py-2 text-xs text-tinta-600">
-              Para confirmar vas a ingresar con tu correo. Si no tenés cuenta, se crea
-              en ese mismo paso. Tu carrito se conserva.
+              En el primer paso te pedimos tu correo para entrar. Si no tenés cuenta,
+              se crea ahí mismo. Tu carrito se conserva.
             </p>
           )}
 
@@ -145,7 +145,7 @@ export default function VistaCarrito({ haySesion }: { haySesion: boolean }) {
             href="/checkout"
             className="mt-4 block rounded-xl bg-marca-800 px-4 py-3 text-center font-medium text-white hover:bg-marca-900"
           >
-            {haySesion ? "Continuar" : "Ingresar y continuar"}
+            Continuar
           </Link>
 
           <Link href="/" className="mt-2 block text-center text-sm text-tinta-500 hover:text-tinta-900">

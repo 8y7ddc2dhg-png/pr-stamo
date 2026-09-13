@@ -19,8 +19,11 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Páginas que exigen sesión iniciada.
+// /checkout NO está acá a propósito: se abre sin sesión y pide el correo en
+// su primer paso. Lo que sí está protegido es el endpoint que confirma
+// (/api/pedidos devuelve 401 sin sesión), que es donde se crea algo de verdad.
 const RUTAS_PRIVADAS = ["/publicar", "/mis-publicaciones", "/mi-perfil", "/mis-reservas",
-                        "/reserva", "/checkout", "/mis-pedidos"];
+                        "/reserva", "/mis-pedidos"];
 
 export async function middleware(request: NextRequest) {
   let respuesta = NextResponse.next({ request });

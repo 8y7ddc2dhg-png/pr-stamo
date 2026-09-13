@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   agruparPorDueno, totalDelCarrito, vaciarCarrito, subtotalDeLinea,
@@ -10,12 +10,16 @@ import { useCarrito, useHidratado } from "@/lib/useCarrito";
 import { formatearQuetzales } from "@/lib/dinero";
 import { formatearRango } from "@/lib/fechas";
 import { CIUDADES } from "@/lib/ciudades";
+import { crearClienteNavegador } from "@/lib/supabase/client";
+import { formatearTelefono } from "@/lib/validaciones";
 
 const PASOS = ["Información", "Entrega", "Pago"] as const;
 
 export default function Checkout({
+  haySesion,
   datosIniciales,
 }: {
+  haySesion: boolean;
   datosIniciales: { nombre: string; apellido: string; correo: string; telefono: string; ciudad: string };
 }) {
   const router = useRouter();
@@ -38,14 +42,77 @@ export default function Checkout({
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
+  // El ingreso pasa acá adentro, en el paso 1. Si no hay sesión, "Continuar"
+  // manda el enlace al correo escrito y la pantalla se queda esperando. Cuando
+  // la persona toca el enlace —en otra pestaña, normalmente— la sesión aparece
+  // en las cookies del navegador, esta pestaña se da cuenta y avanza sola.
+  const [sesionActiva, setSesionActiva] = useState(haySesion);
+  const [esperandoCorreo, setEsperandoCorreo] = useState(false);
+  const [correoEnviadoA, setCorreoEnviadoA] = useState("");
+
   const total = totalDelCarrito(lineas);
   const grupos = agruparPorDueno(lineas);
+
+  /*
+    Mientras se espera el correo, cada 3 segundos se le pregunta a Supabase si
+    ya hay sesión. Cuando la persona toca el enlace en otra pestaña, la sesión
+    queda en las cookies —que son las mismas para todas las pestañas— y esta
+    la ve. Entonces trae los datos del perfil para rellenar lo que esté vacío
+    y avanza al paso 2 sola. Se deja de preguntar a los 10 minutos: un enlace
+    mágico no dura más que eso.
+  */
+  useEffect(() => {
+    if (!esperandoCorreo) return;
+
+    const supabase = crearClienteNavegador();
+    const arranque = Date.now();
+    let vivo = true;
+
+    const reloj = setInterval(async () => {
+      if (!vivo) return;
+      if (Date.now() - arranque > 10 * 60 * 1000) {
+        clearInterval(reloj);
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !vivo) return;
+
+      clearInterval(reloj);
+
+      const { data: perfil } = await supabase
+        .from("users")
+        .select("nombre, telefono_whatsapp, ciudad")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (perfil?.nombre) {
+        const partes = perfil.nombre.trim().split(/\s+/);
+        setNombre((actual) => actual.trim() || partes[0] || "");
+        setApellido((actual) => actual.trim() || partes.slice(1).join(" "));
+      }
+      if (perfil?.telefono_whatsapp) {
+        setTelefono((actual) => actual.trim() || formatearTelefono(perfil.telefono_whatsapp));
+      }
+      if (perfil?.ciudad) setZona((actual) => actual || perfil.ciudad);
+
+      setSesionActiva(true);
+      setEsperandoCorreo(false);
+      setError(null);
+      setPaso(1);
+    }, 3000);
+
+    return () => {
+      vivo = false;
+      clearInterval(reloj);
+    };
+  }, [esperandoCorreo]);
 
   const campo =
     "mt-1.5 w-full rounded-xl border-[0.5px] border-tinta-300 bg-white px-4 py-3 text-base " +
     "outline-none placeholder:text-tinta-400 focus:border-marca-600";
 
-  function siguiente() {
+  async function siguiente() {
     setError(null);
 
     if (paso === 0) {
@@ -55,6 +122,45 @@ export default function Checkout({
         return setError("Ese correo no parece válido.");
       if (telefono.replace(/\D/g, "").length < 8)
         return setError("El teléfono son 8 dígitos, por ejemplo 5512-3456.");
+
+      // Sin sesión: el mismo correo del formulario sirve para entrar. Se manda
+      // el enlace y NO se avanza. Crear la cuenta e ingresar son lo mismo: el
+      // enlace hace las dos cosas.
+      if (!sesionActiva) {
+        setEnviando(true);
+        try {
+          const supabase = crearClienteNavegador();
+          const destino = new URL("/auth/callback", window.location.origin);
+          destino.searchParams.set("volver_a", "/checkout");
+
+          const { error: fallo } = await supabase.auth.signInWithOtp({
+            email: correo.trim(),
+            options: { emailRedirectTo: destino.toString() },
+          });
+
+          if (fallo) {
+            const esLimite = fallo.status === 429 || fallo.code === "over_email_send_rate_limit";
+            setError(
+              esLimite
+                ? "Se alcanzó el límite de correos de la plataforma. Esperá unos minutos y volvé a intentar."
+                : "No pudimos mandar el correo. Revisá que la dirección esté bien escrita e intentá de nuevo."
+            );
+            return;
+          }
+
+          setCorreoEnviadoA(correo.trim());
+          setEsperandoCorreo(true);
+        } catch (fallo) {
+          setError(
+            fallo instanceof Error && fallo.message.includes("Falta la variable")
+              ? fallo.message
+              : "No pudimos conectarnos. Revisá tu internet e intentá de nuevo."
+          );
+        } finally {
+          setEnviando(false);
+        }
+        return;
+      }
     }
 
     if (paso === 1 && tipoEntrega === "domicilio" && direccion.trim().length < 8) {
@@ -156,7 +262,35 @@ export default function Checkout({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px] lg:items-start">
         <div className="rounded-xl border-[0.5px] border-tinta-200 bg-white p-4 sm:p-5">
-          {paso === 0 && (
+          {paso === 0 && esperandoCorreo && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Revisá tu correo</h2>
+              <p className="text-tinta-600">
+                Le mandamos un enlace a <strong className="break-all">{correoEnviadoA}</strong>.
+                Tocalo para confirmar e ingresar. <strong>Esta pantalla avanza sola</strong> en
+                cuanto lo hagas; tu carrito queda guardado mientras tanto.
+              </p>
+              <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                Si no lo ves en un minuto, <strong>fijate en spam</strong> o correo no deseado.
+              </p>
+              <div className="flex items-center gap-3 text-sm text-tinta-500">
+                <span
+                  aria-hidden
+                  className="h-2 w-2 animate-pulse rounded-full bg-marca-600"
+                />
+                Esperando que toques el enlace…
+              </div>
+              <button
+                type="button"
+                onClick={() => { setEsperandoCorreo(false); setError(null); }}
+                className="text-sm font-medium text-tinta-600 underline underline-offset-2"
+              >
+                Usar otro correo
+              </button>
+            </div>
+          )}
+
+          {paso === 0 && !esperandoCorreo && (
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
@@ -174,7 +308,13 @@ export default function Checkout({
               <div>
                 <label htmlFor="correo" className="text-sm font-medium">Correo</label>
                 <input id="correo" type="email" value={correo} onChange={(e) => setCorreo(e.target.value)}
-                       className={campo} placeholder="vos@ejemplo.com" />
+                       className={campo} placeholder="vos@ejemplo.com" autoComplete="email" />
+                {!sesionActiva && (
+                  <p className="mt-1.5 text-xs text-tinta-500">
+                    Con este correo entrás. Te mandamos un enlace; si no tenés cuenta, se
+                    crea sola.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -287,6 +427,7 @@ export default function Checkout({
             </p>
           )}
 
+          {!esperandoCorreo && (
           <div className="mt-6 flex items-center gap-3">
             {paso > 0 ? (
               <button
@@ -307,10 +448,14 @@ export default function Checkout({
 
             {paso < PASOS.length - 1 ? (
               <button
-                type="button" onClick={siguiente}
-                className="flex-1 rounded-xl bg-marca-800 px-5 py-3 font-medium text-white hover:bg-marca-900"
+                type="button" onClick={siguiente} disabled={enviando}
+                className="flex-1 rounded-xl bg-marca-800 px-5 py-3 font-medium text-white hover:bg-marca-900 disabled:opacity-50"
               >
-                Continuar
+                {enviando
+                  ? "Mandando el enlace…"
+                  : paso === 0 && !sesionActiva
+                    ? "Continuar e ingresar"
+                    : "Continuar"}
               </button>
             ) : (
               <button
@@ -321,6 +466,7 @@ export default function Checkout({
               </button>
             )}
           </div>
+          )}
         </div>
 
         <aside className="rounded-xl border-[0.5px] border-tinta-200 bg-white p-4 lg:sticky lg:top-20">
